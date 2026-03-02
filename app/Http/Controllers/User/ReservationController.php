@@ -6,6 +6,7 @@ use App\Http\Controllers\Controller;
 use App\Models\ParkingLocation;
 use App\Models\Reservation;
 use App\Models\ParkingSlot;
+use App\Models\Payment;
 use Illuminate\Http\Request;
 
 class ReservationController extends Controller
