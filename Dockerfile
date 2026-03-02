@@ -23,7 +23,10 @@ WORKDIR /app
 # Copy project files
 COPY . .
 
-RUN composer install --no-dev --optimize-autoloader
+# Install PHP dependencies (production)
+RUN composer install --optimize-autoloader --no-dev --no-interaction
+
+# Install JS dependencies and build assets
 RUN npm install
 RUN npm run build
 
