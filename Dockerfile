@@ -23,18 +23,14 @@ WORKDIR /app
 # Copy project files
 COPY . .
 
-# Install PHP dependencies (production)
-RUN composer install --optimize-autoloader --no-dev --no-interaction
-
-# Install JS dependencies and build assets
+RUN composer install --no-dev --optimize-autoloader
 RUN npm install
 RUN npm run build
 
 # Clear & cache Laravel config
 RUN php artisan config:clear && \
     php artisan route:clear && \
-    php artisan view:clear && \
-    php artisan config:cache
+    php artisan view:clear && 
 
 # Set correct permissions
 RUN chown -R www-data:www-data storage bootstrap/cache
