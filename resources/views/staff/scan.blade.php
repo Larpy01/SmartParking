@@ -1,152 +1,140 @@
-@extends('layouts.app')
+@extends('layouts.staff')
 
 @section('title', 'Scan QR Code')
 
 @section('content')
-<div class="p-6 max-w-3xl mx-auto space-y-6">
-
-    <div class="mb-0 ml-2 p-3">
-        <a href="{{ route('staff.dashboard') }}" class="flex items-center gap-2 text-sm text-gray-500 hover:text-blue-600">
-        <i class="fa-solid fa-arrow-left"></i>
-        </a>
-    </div>
-
-    <div class="bg-white rounded-xl border border-gray-200 shadow-sm overflow-hidden">
-        <div class="px-6 py-4 border-b border-gray-100">
-            <h2 class="text-sm font-semibold text-black">QR Scanner</h2>
+<div class="p-6">
+    <div class="bg-white rounded-lg border border-gray-200 p-6">
+        <div class="flex items-center justify-between mb-6">
+            <h2 class="text-lg font-semibold text-gray-900">Scan QR Code</h2>
+            <a href="{{ route('staff.dashboard') }}" 
+               class="text-sm text-gray-600 hover:text-gray-900">
+                ← Back to Dashboard
+            </a>
         </div>
 
-        <div class="p-6 space-y-4">
+        @if(session('success'))
+            <div class="mb-4 p-4 bg-green-50 border border-green-200 text-green-700 rounded-lg">
+                {{ session('success') }}
+            </div>
+        @endif
 
-            {{-- Scanner --}}
-            <div class="relative w-full rounded-xl overflow-hidden bg-black" style="height: 320px;">
-                <video id="scanner-video" class="w-full h-full object-cover" playsinline></video>
+        @if(session('error'))
+            <div class="mb-4 p-4 bg-red-50 border border-red-200 text-red-700 rounded-lg">
+                {{ session('error') }}
+            </div>
+        @endif
 
-                <div class="absolute inset-0 flex items-center justify-center pointer-events-none">
-                    <div class="w-56 h-56 border-2 border-white/60 rounded-xl relative">
-                        <span class="absolute top-0 left-0 w-6 h-6 border-t-4 border-l-4 border-blue-500"></span>
-                        <span class="absolute top-0 right-0 w-6 h-6 border-t-4 border-r-4 border-blue-500"></span>
-                        <span class="absolute bottom-0 left-0 w-6 h-6 border-b-4 border-l-4 border-blue-500"></span>
-                        <span class="absolute bottom-0 right-0 w-6 h-6 border-b-4 border-r-4 border-blue-500"></span>
-                    </div>
-                </div>
-
-                <div id="scanner-placeholder"
-                     class="absolute inset-0 flex flex-col items-center justify-center text-white bg-black">
-                    <i class="fa-solid fa-qrcode text-4xl mb-3 text-gray-400"></i>
-                    <p class="text-sm text-gray-400">Camera not started</p>
-                </div>
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+            {{-- Scanner Section --}}
+            <div class="bg-gray-50 rounded-lg p-4">
+                <h3 class="font-medium text-gray-900 mb-4">Scan QR Code</h3>
+                <div id="qr-reader" style="width: 100%"></div>
+                <div id="qr-reader-results" class="mt-4 text-center text-sm text-gray-600"></div>
             </div>
 
-            {{-- Buttons --}}
-            <div class="flex gap-3">
-                <button id="start-scanner"
-                        onclick="startScanner()"
-                        class="flex-1 py-2 px-4 bg-blue-600 hover:bg-blue-700 text-white text-sm font-semibold rounded-lg transition cursor-pointer">
-                    Start Scanner
-                </button>
-
-                <button id="stop-scanner"
-                        onclick="stopScanner()"
-                        class="flex-1 py-2 px-4 bg-gray-200 hover:bg-gray-300 text-black text-sm font-semibold rounded-lg transition hidden">
-                    Stop
-                </button>
+            {{-- Manual Entry Section --}}
+            <div class="bg-gray-50 rounded-lg p-4">
+                <h3 class="font-medium text-gray-900 mb-4">Manual Entry</h3>
+                <form id="manual-entry-form" onsubmit="handleManualEntry(event)">
+                    @csrf
+                    <div class="mb-4">
+                        <label class="block text-sm font-medium text-gray-700 mb-2">
+                            Reservation ID
+                        </label>
+                        <input type="text" 
+                               id="reservation_id" 
+                               class="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-blue-500 focus:border-blue-500"
+                               placeholder="Enter reservation ID"
+                               required>
+                    </div>
+                    <button type="submit" 
+                            class="w-full px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2">
+                        Process Reservation
+                    </button>
+                </form>
             </div>
+        </div>
 
-            {{-- Result --}}
-            <div id="scan-result" class="hidden">
-                <div class="border border-gray-200 rounded-xl overflow-hidden">
-
-                    <div class="px-4 py-3 flex justify-between items-center bg-gray-50">
-                        <div>
-                            <p id="result-name" class="font-semibold text-sm text-black"></p>
-                            <p id="result-location" class="text-xs text-gray-500"></p>
-                        </div>
-                        <span id="result-status"
-                              class="text-[11px] font-bold px-2 py-0.5 rounded-full"></span>
+        {{-- Results Modal --}}
+        <div id="result-modal" class="fixed inset-0 bg-black/50 hidden items-center justify-center z-50">
+            <div class="bg-white rounded-lg max-w-2xl w-full mx-4 max-h-[90vh] overflow-y-auto">
+                <div class="p-6">
+                    <div id="modal-content"></div>
+                    <div class="mt-6 flex justify-end gap-3">
+                        <button onclick="closeModal()" 
+                                class="px-4 py-2 text-gray-600 hover:text-gray-800 border border-gray-300 rounded-md">
+                            Close
+                        </button>
+                        <button onclick="printReceipt()" 
+                                class="px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700">
+                            Print Receipt
+                        </button>
                     </div>
-
-                    <div class="px-4 py-4 space-y-2 text-xs">
-                        <div class="flex justify-between">
-                            <span class="text-gray-500">Vehicle</span>
-                            <span id="result-vehicle" class="font-medium text-black"></span>
-                        </div>
-
-                        <div class="flex justify-between">
-                            <span class="text-gray-500">Slot</span>
-                            <span id="result-slot" class="font-medium text-black"></span>
-                        </div>
-
-                        <div class="flex justify-between">
-                            <span class="text-gray-500">Amount Due</span>
-                            <span id="result-amount" class="font-bold text-black"></span>
-                        </div>
-                    </div>
-
-                    <div id="result-actions" class="px-4 pb-4 flex gap-2"></div>
                 </div>
             </div>
-
-            <div id="scan-error"
-                 class="hidden p-3 bg-red-50 border border-red-200 text-red-700 text-xs rounded-lg"></div>
-
         </div>
     </div>
 </div>
 
-<script src="https://cdnjs.cloudflare.com/ajax/libs/jsQR/1.4.0/jsQR.min.js"></script>
+{{-- Include Html5Qrcode library --}}
+<script src="https://unpkg.com/html5-qrcode/minified/html5-qrcode.min.js"></script>
 
 <script>
-let stream = null;
-let scanInterval = null;
-let currentReservationId = null;
+let html5QrcodeScanner = null;
+let lastScannedData = null;
 
 function startScanner() {
-    navigator.mediaDevices.getUserMedia({ video: { facingMode: 'environment' } })
-        .then(s => {
-            stream = s;
-            const video = document.getElementById('scanner-video');
-            video.srcObject = stream;
-            video.play();
-
-            document.getElementById('scanner-placeholder').style.display = 'none';
-            document.getElementById('start-scanner').classList.add('hidden');
-            document.getElementById('stop-scanner').classList.remove('hidden');
-
-            scanInterval = setInterval(scanFrame, 300);
-        })
-        .catch(() => showError('Camera access denied.'));
+    if (html5QrcodeScanner) {
+        html5QrcodeScanner.clear();
+    }
+    
+    html5QrcodeScanner = new Html5QrcodeScanner(
+        "qr-reader", 
+        { 
+            fps: 10, 
+            qrbox: { width: 250, height: 250 },
+            rememberLastUsedCamera: true,
+            showTorchButtonIfSupported: true
+        },
+        /* verbose= */ false
+    );
+    
+    html5QrcodeScanner.render(onScanSuccess, onScanError);
 }
 
-function stopScanner() {
-    if (stream) stream.getTracks().forEach(t => t.stop());
-    clearInterval(scanInterval);
-
-    document.getElementById('scanner-placeholder').style.display = 'flex';
-    document.getElementById('start-scanner').classList.remove('hidden');
-    document.getElementById('stop-scanner').classList.add('hidden');
-}
-
-function scanFrame() {
-    const video = document.getElementById('scanner-video');
-    if (video.readyState !== video.HAVE_ENOUGH_DATA) return;
-
-    const canvas = document.createElement('canvas');
-    canvas.width = video.videoWidth;
-    canvas.height = video.videoHeight;
-
-    const ctx = canvas.getContext('2d');
-    ctx.drawImage(video, 0, 0);
-    const imageData = ctx.getImageData(0, 0, canvas.width, canvas.height);
-    const code = jsQR(imageData.data, imageData.width, imageData.height);
-
-    if (code) {
-        stopScanner();
-        processQr(code.data);
+function onScanSuccess(decodedText, decodedResult) {
+    // Prevent duplicate scans
+    if (lastScannedData === decodedText) {
+        return;
+    }
+    
+    lastScannedData = decodedText;
+    
+    // Handle the scanned QR code
+    handleScannedData(decodedText);
+    
+    // Pause scanner briefly to prevent multiple scans
+    if (html5QrcodeScanner) {
+        html5QrcodeScanner.pause();
     }
 }
 
-function processQr(data) {
+function onScanError(errorMessage) {
+    // Handle scan error (optional)
+    console.log('Scan error:', errorMessage);
+}
+
+function handleScannedData(data) {
+    // Show loading state
+    showModal(`
+        <div class="text-center py-8">
+            <div class="inline-block animate-spin rounded-full h-8 w-8 border-4 border-blue-600 border-t-transparent"></div>
+            <p class="mt-4 text-gray-600">Processing...</p>
+        </div>
+    `);
+    
+    // Send to server using the correct route name
     fetch('{{ route("staff.scan") }}', {
         method: 'POST',
         headers: {
@@ -155,54 +143,223 @@ function processQr(data) {
         },
         body: JSON.stringify({ qr_data: data })
     })
-    .then(r => r.json())
-    .then(res => {
-        if (!res.success) return showError(res.message);
-
-        const r = res.reservation;
-        currentReservationId = r.id;
-
-        document.getElementById('scan-result').classList.remove('hidden');
-
-        document.getElementById('result-name').textContent = r.user;
-        document.getElementById('result-location').textContent = r.location;
-        document.getElementById('result-vehicle').textContent = r.vehicle;
-        document.getElementById('result-slot').textContent = r.slot;
-        document.getElementById('result-amount').textContent =
-            r.is_free ? 'Free' : '₱' + parseFloat(r.total_amount).toFixed(2);
-
-        const statusEl = document.getElementById('result-status');
-        statusEl.textContent = r.status;
-
-        statusEl.className =
-            'text-[11px] font-bold px-2 py-0.5 rounded-full ' +
-            (r.status === 'active'
-                ? 'bg-emerald-100 text-emerald-700'
-                : 'bg-blue-100 text-blue-700');
-
-        const actions = document.getElementById('result-actions');
-        actions.innerHTML = '';
-
-        if (r.status === 'pending') {
-            actions.innerHTML =
-                `<button onclick="updateStatus('active')"
-                    class="flex-1 py-2 px-3 bg-emerald-600 hover:bg-emerald-700 text-white text-xs font-semibold rounded-lg">
-                    Check In
-                </button>`;
-        } else if (r.status === 'active') {
-            actions.innerHTML =
-                `<button onclick="updateStatus('completed')"
-                    class="flex-1 py-2 px-3 bg-blue-600 hover:bg-blue-700 text-white text-xs font-semibold rounded-lg">
-                    Check Out
-                </button>`;
+    .then(response => {
+        if (!response.ok) {
+            return response.json().then(err => { throw err; });
         }
+        return response.json();
+    })
+    .then(data => {
+        displayResult(data);
+        setTimeout(() => {
+            lastScannedData = null;
+        }, 3000);
+    })
+    .catch(error => {
+        console.error('Error:', error);
+        showModal(`
+            <div class="text-center py-8">
+                <div class="text-red-600 text-5xl mb-4">❌</div>
+                <h3 class="text-xl font-bold text-red-600 mb-2">Error</h3>
+                <p class="text-gray-600">${error.message || 'Failed to process QR code'}</p>
+            </div>
+        `);
+        lastScannedData = null;
     });
 }
 
-function showError(msg) {
-    const el = document.getElementById('scan-error');
-    el.textContent = msg;
-    el.classList.remove('hidden');
+function handleManualEntry(event) {
+    event.preventDefault();
+    const reservationId = document.getElementById('reservation_id').value;
+    
+    if (!reservationId) {
+        alert('Please enter a reservation ID');
+        return;
+    }
+    
+    handleScannedData(reservationId);
 }
+
+function displayResult(data) {
+    let html = '';
+    
+    if (data.success) {
+        if (data.action === 'checked_in') {
+            html = `
+                <div class="text-center">
+                    <div class="text-green-600 text-5xl mb-4">✅</div>
+                    <h3 class="text-2xl font-bold text-green-600 mb-2">Check-in Successful!</h3>
+                    <p class="text-gray-600 mb-6">${data.message}</p>
+                    
+                    <div class="bg-gray-50 rounded-lg p-6 text-left">
+                        <h4 class="font-semibold text-gray-900 mb-4">Reservation Details</h4>
+                        <div class="grid grid-cols-2 gap-4">
+                            <div>
+                                <p class="text-sm text-gray-500">Reservation #</p>
+                                <p class="font-medium">${data.reservation.id}</p>
+                            </div>
+                            <div>
+                                <p class="text-sm text-gray-500">Customer</p>
+                                <p class="font-medium">${data.reservation.user || 'N/A'}</p>
+                            </div>
+                            <div>
+                                <p class="text-sm text-gray-500">Vehicle</p>
+                                <p class="font-medium">${data.reservation.vehicle || 'N/A'}</p>
+                            </div>
+                            <div>
+                                <p class="text-sm text-gray-500">Slot</p>
+                                <p class="font-medium">${data.reservation.slot || 'N/A'}</p>
+                            </div>
+                            <div>
+                                <p class="text-sm text-gray-500">Location</p>
+                                <p class="font-medium">${data.reservation.location || 'N/A'}</p>
+                            </div>
+                            <div>
+                                <p class="text-sm text-gray-500">Start Time</p>
+                                <p class="font-medium">${data.reservation.start_time || 'N/A'}</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            `;
+        } else if (data.action === 'checked_out') {
+            html = `
+                <div class="text-center">
+                    <div class="text-green-600 text-5xl mb-4">✅</div>
+                    <h3 class="text-2xl font-bold text-green-600 mb-2">Check-out Successful!</h3>
+                    <p class="text-gray-600 mb-6">${data.message}</p>
+                    
+                    <div class="bg-gray-50 rounded-lg p-6 text-left">
+                        <h4 class="font-semibold text-gray-900 mb-4">Payment Summary</h4>
+                        <div class="space-y-3">
+                            <div class="flex justify-between">
+                                <span class="text-gray-600">Free Hours Used:</span>
+                                <span class="font-medium">${data.reservation.free_hours || 0} hrs</span>
+                            </div>
+                            <div class="flex justify-between">
+                                <span class="text-gray-600">Paid Hours:</span>
+                                <span class="font-medium">${data.reservation.paid_hours || 0} hrs</span>
+                            </div>
+                            <div class="flex justify-between text-lg font-bold border-t pt-3">
+                                <span>Total Amount:</span>
+                                <span class="text-green-600">₱${data.reservation.total_amount || 0}</span>
+                            </div>
+                            <div class="flex justify-between">
+                                <span class="text-gray-600">Payment Method:</span>
+                                <span class="font-medium capitalize">${data.reservation.payment_method || 'N/A'}</span>
+                            </div>
+                            <div class="flex justify-between">
+                                <span class="text-gray-600">Payment Status:</span>
+                                <span class="font-medium capitalize ${data.reservation.payment_status === 'paid' ? 'text-green-600' : 'text-yellow-600'}">${data.reservation.payment_status || 'N/A'}</span>
+                            </div>
+                        </div>
+                        
+                        <div class="mt-4 text-sm text-gray-500">
+                            <p>End Time: ${data.reservation.end_time || 'N/A'}</p>
+                        </div>
+                    </div>
+                </div>
+            `;
+        } else if (data.action === 'payment_failed') {
+            html = `
+                <div class="text-center">
+                    <div class="text-yellow-600 text-5xl mb-4">⚠️</div>
+                    <h3 class="text-2xl font-bold text-yellow-600 mb-2">Payment Failed</h3>
+                    <p class="text-gray-600 mb-6">${data.message}</p>
+                    
+                    <div class="bg-gray-50 rounded-lg p-6 text-left">
+                        <h4 class="font-semibold text-gray-900 mb-4">Amount to Collect</h4>
+                        <div class="text-center">
+                            <p class="text-3xl font-bold text-red-600">₱${data.reservation.total_amount || 0}</p>
+                            <p class="text-sm text-gray-500 mt-2">Please collect cash payment</p>
+                        </div>
+                    </div>
+                </div>
+            `;
+        }
+    } else {
+        html = `
+            <div class="text-center py-8">
+                <div class="text-red-600 text-5xl mb-4">❌</div>
+                <h3 class="text-xl font-bold text-red-600 mb-2">Error</h3>
+                <p class="text-gray-600">${data.message || 'An error occurred'}</p>
+            </div>
+        `;
+    }
+    
+    showModal(html);
+}
+
+function showModal(content) {
+    const modal = document.getElementById('result-modal');
+    const modalContent = document.getElementById('modal-content');
+    modalContent.innerHTML = content;
+    modal.classList.remove('hidden');
+    modal.classList.add('flex');
+    document.body.style.overflow = 'hidden';
+}
+
+function closeModal() {
+    const modal = document.getElementById('result-modal');
+    modal.classList.add('hidden');
+    modal.classList.remove('flex');
+    document.body.style.overflow = '';
+    
+    // Resume scanner
+    if (html5QrcodeScanner) {
+        html5QrcodeScanner.resume();
+    }
+    
+    // Clear manual entry
+    document.getElementById('reservation_id').value = '';
+}
+
+function printReceipt() {
+    const content = document.getElementById('modal-content').innerHTML;
+    const printWindow = window.open('', '_blank');
+    printWindow.document.write(`
+        <html>
+            <head>
+                <title>Parking Receipt</title>
+                <style>
+                    body { font-family: Arial, sans-serif; padding: 20px; }
+                    .receipt { max-width: 300px; margin: 0 auto; }
+                    @media print {
+                        body { margin: 0; }
+                        .no-print { display: none; }
+                    }
+                </style>
+            </head>
+            <body>
+                <div class="receipt">
+                    ${content}
+                </div>
+                <div class="no-print text-center mt-4">
+                    <button onclick="window.print()" class="px-4 py-2 bg-blue-600 text-white rounded-md">Print</button>
+                </div>
+            </body>
+        </html>
+    `);
+    printWindow.document.close();
+}
+
+// Initialize scanner when page loads
+document.addEventListener('DOMContentLoaded', function() {
+    startScanner();
+});
+
+// Clean up on page unload
+window.addEventListener('beforeunload', function() {
+    if (html5QrcodeScanner) {
+        html5QrcodeScanner.clear();
+    }
+});
+
+// Handle escape key
+document.addEventListener('keydown', function(e) {
+    if (e.key === 'Escape') {
+        closeModal();
+    }
+});
 </script>
 @endsection
