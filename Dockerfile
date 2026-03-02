@@ -33,7 +33,7 @@ RUN npm run build
 # Clear & cache Laravel config
 RUN php artisan config:clear && \
     php artisan route:clear && \
-    php artisan view:clear && 
+    php artisan view:clear
 
 # Set correct permissions
 RUN chown -R www-data:www-data storage bootstrap/cache
