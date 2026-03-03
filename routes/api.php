@@ -6,6 +6,8 @@ use App\Http\Controllers\Api\{
     ReservationController as ApiReservationController
 };
 
+use Illuminate\Http\Request;
+use App\Models\ParkingSlot;
 use Illuminate\Support\Facades\Route;
 
 Route::middleware('auth:sanctum')->group(function () {
@@ -20,13 +22,13 @@ Route::middleware('auth:sanctum')->group(function () {
         [ApiReservationController::class, 'store']);
 });
 
-Route::get('/api/slot/{id}/{token}', function ($id, $token) {
+Route::get('/slot/{id}/{token}', function ($id, $token) {
 
-    if ($token !== 'ESP32_SECRET') {
-        abort(403);
+    if ($token !== env('ESP32_SECRET')) {
+        return response()->json(['error' => 'Unauthorized'], 403);
     }
 
-    $slot = \App\Models\ParkingSlot::findOrFail($id);
+    $slot = ParkingSlot::findOrFail($id);
 
     return response()->json([
         'status' => $slot->status
