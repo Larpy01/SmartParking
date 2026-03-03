@@ -9,6 +9,7 @@ use App\Models\Reservation;
 use App\Policies\ParkingLocationPolicy;
 use App\Policies\ParkingSlotPolicy;
 use App\Policies\ReservationPolicy;
+use Illuminate\Support\Facades\URL;
 
 class AppServiceProvider extends ServiceProvider
 {

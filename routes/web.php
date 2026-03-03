@@ -148,7 +148,7 @@ Route::middleware(['auth', 'admin'])->prefix('admin')->name('admin.')->group(fun
             AdminReservationController::class)
             ->only(['index', 'show', 'destroy']);
         
-        Route::get('/admin/reservations/scan/{id}/{token}', [AdminReservationController::class, 'scan'])
+        Route::get('/reservations/scan/{id}/{token}', [AdminReservationController::class, 'scan'])
         ->name('admin.reservations.scan');
 
         // Users
@@ -163,16 +163,5 @@ Route::middleware(['auth', 'admin'])->prefix('admin')->name('admin.')->group(fun
 
 });
 
-Route::get('/api/slot/{id}/{token}', function ($id, $token) {
 
-    if ($token !== 'ESP32_SECRET') {
-        abort(403);
-    }
-
-    $slot = \App\Models\ParkingSlot::findOrFail($id);
-
-    return response()->json([
-        'status' => $slot->status
-    ]);
-});
 

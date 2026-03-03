@@ -19,3 +19,16 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::post('/reservations',
         [ApiReservationController::class, 'store']);
 });
+
+Route::get('/api/slot/{id}/{token}', function ($id, $token) {
+
+    if ($token !== 'ESP32_SECRET') {
+        abort(403);
+    }
+
+    $slot = \App\Models\ParkingSlot::findOrFail($id);
+
+    return response()->json([
+        'status' => $slot->status
+    ]);
+});
