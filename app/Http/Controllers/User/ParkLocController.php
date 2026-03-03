@@ -28,17 +28,4 @@ class ParkLocController extends Controller
         $parkingLocation->load('slots');
         return view('parking.show', compact('parkingLocation'));
     }
-    public function status($id, $token)
-    {
-
-        if ($token !== 'ESP32_SECRET') {
-            return response()->json(['error' => 'Unauthorized'], 401);
-        }
-
-        $reservation = Reservation::where('slot_id', $id)->latest()->first();
-
-        $status = $reservation ? $reservation->status : 'available';
-
-        return response()->json(['status' => $status]);
-    }
 }

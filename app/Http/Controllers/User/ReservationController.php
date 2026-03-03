@@ -109,12 +109,14 @@ class ReservationController extends Controller
 
     public function destroy(Reservation $reservation)
     {
+
         if ($reservation->user_id !== auth()->id()) {
             abort(403, 'Unauthorized.');
         }
 
         if ($reservation->status !== 'cancelled') {
-            return back()->with('error', 'Only cancelled reservations can be permanently deleted.');
+            $reservation->update(['status' => 'cancelled']);
+            $reservation->slot->update(['status' => 'available']);
         }
 
         $reservation->slot->update(['status' => 'available']);

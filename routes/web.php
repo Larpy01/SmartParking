@@ -61,8 +61,6 @@ Route::middleware('auth')->group(function () {
     Route::get('/parking/{parkingLocation}', [ParkLocController::class, 'show'])
         ->name('parking.show');
 
-    Route::get('/slot/{id}/{token}', [ParkLocController::class, 'status']);
-
     Route::post('/contact', [ContactsController::class, 'store'])
         ->name('contact.store');
 
