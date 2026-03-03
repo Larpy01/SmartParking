@@ -61,6 +61,8 @@ Route::middleware('auth')->group(function () {
     Route::get('/parking/{parkingLocation}', [ParkLocController::class, 'show'])
         ->name('parking.show');
 
+    Route::get('/slot/{id}/{token}', [ParkLocController::class, 'status']);
+
     Route::post('/contact', [ContactsController::class, 'store'])
         ->name('contact.store');
 
@@ -161,7 +163,11 @@ Route::middleware(['auth', 'admin'])->prefix('admin')->name('admin.')->group(fun
 
 });
 
-Route::get('/api/slot/{id}', function ($id) {
+Route::get('/api/slot/{id}/{token}', function ($id, $token) {
+
+    if ($token !== 'ESP32_SECRET') {
+        abort(403);
+    }
 
     $slot = \App\Models\ParkingSlot::findOrFail($id);
 

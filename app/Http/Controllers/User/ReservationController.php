@@ -88,7 +88,15 @@ class ReservationController extends Controller
     }
     public function start(Reservation $reservation)
     {
-        $reservation->update(['status' => 'active']);
+        $reservation->update([
+            'status' => 'active',
+            'start_time' => now()
+        ]);
+
+        $reservation->slot->update([
+        'status' => 'active'
+        ]);
+
         return back();
     }
 

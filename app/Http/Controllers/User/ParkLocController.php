@@ -5,6 +5,7 @@ namespace App\Http\Controllers\User;
 use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
 use App\Models\ParkingLocation;
+use App\Models\Reservation;
 
 class ParkLocController extends Controller
 {
@@ -26,5 +27,18 @@ class ParkLocController extends Controller
     {
         $parkingLocation->load('slots');
         return view('parking.show', compact('parkingLocation'));
+    }
+    public function status($id, $token)
+    {
+
+        if ($token !== 'ESP32_SECRET') {
+            return response()->json(['error' => 'Unauthorized'], 401);
+        }
+
+        $reservation = Reservation::where('slot_id', $id)->latest()->first();
+
+        $status = $reservation ? $reservation->status : 'available';
+
+        return response()->json(['status' => $status]);
     }
 }

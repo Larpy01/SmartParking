@@ -34,15 +34,13 @@ public function register(Request $request)
 {
     $request->validate([
         'name' => 'required|string|max:255',
-
         'email' => 'required|email|unique:users,email',
-
+        'terms' => 'accepted', // <--- Add this line
         'phone_number' => [
             'required',
             'digits_between:10,11',
             'unique:users,phone_number'
         ],
-
         'password' => [
             'required',
             'min:8',
@@ -51,6 +49,7 @@ public function register(Request $request)
             'regex:/[0-9]/',
         ],
     ], [
+        'terms.accepted' => 'You must agree to the Privacy Policy and Terms of Service.', // <--- Custom message
         'password.regex' => 'Password must contain at least one uppercase letter and a number.',
         'password.confirmed' => 'Passwords do not match.',
         'phone_number.digits_between' => 'Phone number must be 10–11 digits.',

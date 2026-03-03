@@ -135,8 +135,26 @@
                     @enderror
                 </div>
 
-                <div class="flex items-center justify-between">
-                    
+                {{-- Privacy Policy & Terms --}}
+                <div class="flex items-start">
+                    <div class="flex items-center h-5">
+                        <input id="terms" name="terms" type="checkbox" required
+                               class="h-4 w-4 rounded border-gray-400 text-orange-500 focus:ring-orange-500 cursor-pointer">
+                    </div>
+                    <div class="ml-3 text-sm">
+                        <label for="terms" class="font-medium text-gray-700">
+                            I agree to the 
+                            <a href="privacy" class="text-blue-500 hover:underline">Privacy Policy</a> 
+                            and 
+                            <a href="terms" class="text-blue-500 hover:underline">Terms of Service</a>.
+                        </label>
+                        @error('terms')
+                            <p class="text-xs text-red-500 mt-1">{{ $message }}</p>
+                        @enderror
+                    </div>
+                </div>
+
+                <div class="flex items-center justify-between mt-6">
                     <a href="{{ route('login') }}"
                     class="text-sm font-semibold text-blue-500 hover:underline hover:text-blue-700 transition">
                         Already have an account? Log in
@@ -146,9 +164,7 @@
                             class="px-5 py-2 rounded-md bg-blue-500 text-sm font-semibold text-white hover:bg-blue-600 transition cursor-pointer">
                         Create account
                     </button>
-
                 </div>
-
 
 
                 </div>
