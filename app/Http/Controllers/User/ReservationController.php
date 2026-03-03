@@ -21,7 +21,10 @@ class ReservationController extends Controller
 
     public function index()
     {
-        $reservations = auth()->user()->reservations()->latest()->get();
+        $reservations = auth()->user()->reservations()
+            ->with(['slot.location', 'vehicle', 'payment'])
+            ->latest()
+            ->get();
         return view('reservations.index', compact('reservations'));
     }
 
@@ -42,9 +45,9 @@ class ReservationController extends Controller
         }
 
         $parkingLocation = ParkingLocation::findOrFail($parkingLocation);
-        $slots = $parkingLocation->slots()->where('status', 'available')->get();
-        $vehicles = auth()->user()->vehicles()->get();
-        $subscription = auth()->user()->subscription;
+        $slots           = $parkingLocation->slots()->where('status', 'available')->get();
+        $vehicles        = auth()->user()->vehicles()->get();
+        $subscription    = auth()->user()->subscription;
 
         return view('reservations.create', compact('parkingLocation', 'slots', 'vehicles', 'subscription'));
     }
@@ -58,7 +61,6 @@ class ReservationController extends Controller
             'payment_method'      => 'required|in:gcash,maya,card,cash',
         ]);
 
-        // Check slot is still available
         $slot = ParkingSlot::findOrFail($request->slot_id);
         if ($slot->status !== 'available') {
             return back()->withErrors(['slot_id' => 'This slot is no longer available.']);
@@ -72,31 +74,30 @@ class ReservationController extends Controller
             'is_free'    => false,
         ]);
 
-        // Create payment record
         Payment::create([
             'reservation_id' => $reservation->id,
-            'amount'         => 0, // calculated at checkout
+            'amount'         => 0,
             'payment_method' => $request->payment_method,
             'payment_status' => 'unpaid',
         ]);
 
-        // Mark slot as reserved
         $slot->update(['status' => 'reserved']);
 
         return redirect()->route('reservations.index')
             ->with('success', 'Reservation created. Show your QR code at the entrance.');
     }
+
+    public function show(Reservation $reservation)
+    {
+        abort_if($reservation->user_id !== auth()->id(), 403);
+        $reservation->load(['slot.location', 'vehicle', 'payment']);
+        return view('reservations.show', compact('reservation'));
+    }
+
     public function start(Reservation $reservation)
     {
-        $reservation->update([
-            'status' => 'active',
-            'start_time' => now()
-        ]);
-
-        $reservation->slot->update([
-        'status' => 'active'
-        ]);
-
+        $reservation->update(['status' => 'active', 'start_time' => now()]);
+        $reservation->slot->update(['status' => 'active']);
         return back();
     }
 
@@ -109,19 +110,21 @@ class ReservationController extends Controller
 
     public function destroy(Reservation $reservation)
     {
+        abort_if($reservation->user_id !== auth()->id(), 403);
 
-        if ($reservation->user_id !== auth()->id()) {
-            abort(403, 'Unauthorized.');
-        }
-
-        if ($reservation->status !== 'cancelled') {
+        if (in_array($reservation->status, ['pending', 'active'])) {
             $reservation->update(['status' => 'cancelled']);
             $reservation->slot->update(['status' => 'available']);
+            // Hard-delete so slot record is freed; change to soft-delete if needed
+            $reservation->delete();
+            return back()->with('success', 'Reservation cancelled.');
         }
 
-        $reservation->slot->update(['status' => 'available']);
-        $reservation->delete();
+        if (in_array($reservation->status, ['completed', 'cancelled'])) {
+            $reservation->delete();
+            return back()->with('success', 'Reservation deleted.');
+        }
 
-        return back()->with('success', 'Reservation cancelled.');
+        return back()->with('error', 'This reservation cannot be deleted.');
     }
 }
