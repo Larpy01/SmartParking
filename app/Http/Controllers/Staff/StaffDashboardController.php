@@ -46,7 +46,7 @@ class StaffDashboardController extends Controller
         // Accept either raw JSON or base64-encoded JSON payloads from QR codes.
         $payload = $request->qr_data;
         $decoded = @base64_decode($payload, true);
-        if ($decoded !== false && json_decode($decoded, true) !== null) {
+        if($decoded !== false && json_decode($decoded, true) !== null) {
             $data = json_decode($decoded, true);
         } else {
             $data = json_decode($payload, true);

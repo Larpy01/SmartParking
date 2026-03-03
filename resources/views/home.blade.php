@@ -61,7 +61,7 @@
 
                                 <div class="mt-3 flex items-center justify-between">
                                     <span class="text-sm">
-                                        Capacity: {{ $location->capacity }} slots
+                                        Capacity: {{ $location->capacity->count() }} slots
                                     </span>
                                     <span class="text-xl font-semibold text-gray-900">
                                         ₱ {{ number_format($location->hourly_rate, 2) }}/hour
