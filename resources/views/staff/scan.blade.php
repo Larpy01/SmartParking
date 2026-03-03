@@ -77,8 +77,8 @@
     </div>
 </div>
 
-{{-- Include Html5Qrcode library --}}
-<script src="https://unpkg.com/html5-qrcode/minified/html5-qrcode.min.js"></script>
+
+<script src="https://unpkg.com/html5-qrcode@2.3.8/minified/html5-qrcode.min.js"></script>
 
 <script>
 let html5QrcodeScanner = null;
