@@ -43,7 +43,14 @@ class StaffDashboardController extends Controller
     {
         $request->validate(['qr_data' => 'required|string']);
 
-        $data = json_decode($request->qr_data, true);
+        // Accept either raw JSON or base64-encoded JSON payloads from QR codes.
+        $payload = $request->qr_data;
+        $decoded = @base64_decode($payload, true);
+        if ($decoded !== false && json_decode($decoded, true) !== null) {
+            $data = json_decode($decoded, true);
+        } else {
+            $data = json_decode($payload, true);
+        }
 
         if (!$data || !isset($data['reservation_id'], $data['token'])) {
             return response()->json(['success' => false, 'message' => 'Invalid QR code.'], 422);

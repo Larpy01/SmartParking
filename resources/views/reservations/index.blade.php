@@ -111,14 +111,14 @@
                     <div class="p-6 flex flex-col items-center gap-4">
                         <p class="text-xs text-gray-500 text-center">Show this QR code to the parking staff to check in or out.</p>
                     
-                    <div class="p-3 border-2 border-gray-100 rounded-xl bg-white shadow-inner">
-                        {!! QrCode::size(200)->generate(
-                            json_encode([
-                                'reservation_id' => $reservation->id,
-                                'token' => hash_hmac('sha256', $reservation->id, config('app.key')),
-                            ])
-                        ) !!}
-                    </div>
+                            <div class="p-3 border-2 border-gray-100 rounded-xl bg-white shadow-inner">
+                            {!! QrCode::size(200)->generate(
+                                base64_encode(json_encode([
+                                    'reservation_id' => $reservation->id,
+                                    'token' => hash_hmac('sha256', $reservation->id, config('app.key')),
+                                ]))
+                            ) !!}
+                        </div>
 
                         <div class="w-full text-xs text-gray-600 space-y-1.5 border-t pt-4">
                             <div class="flex justify-between">
