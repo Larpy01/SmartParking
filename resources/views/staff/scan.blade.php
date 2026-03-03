@@ -1,4 +1,4 @@
-@extends('layouts.staff')
+@extends('layouts.app')
 
 @section('title', 'Scan QR Code')
 
@@ -343,12 +343,10 @@ function printReceipt() {
     printWindow.document.close();
 }
 
-// Initialize scanner when page loads
 document.addEventListener('DOMContentLoaded', function() {
     startScanner();
 });
 
-// Clean up on page unload
 window.addEventListener('beforeunload', function() {
     if (html5QrcodeScanner) {
         html5QrcodeScanner.clear();

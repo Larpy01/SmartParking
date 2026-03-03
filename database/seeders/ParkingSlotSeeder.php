@@ -15,7 +15,7 @@ class ParkingSlotSeeder extends Seeder
     {
         $locationId = 1; 
 
-        for ($i = 1; $i <= 20; $i++) {
+        for ($i = 1; $i <= 2; $i++) {
             if ($i <= 5) {
                 $type = 'compact';
             } elseif ($i <= 15) {
