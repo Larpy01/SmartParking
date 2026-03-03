@@ -27,9 +27,10 @@ COPY . .
 RUN composer install --optimize-autoloader --no-dev --no-interaction
 
 # Install JS dependencies and build assets
+RUN npm install html5-qrcode
 RUN npm install
 RUN npm run build
-RUN npm install html5-qrcode
+
 
 # Clear & cache Laravel config
 RUN php artisan config:clear && \
