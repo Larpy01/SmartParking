@@ -4,24 +4,25 @@ namespace App\Http\Controllers\User;
 
 use App\Http\Controllers\Controller;
 use App\Models\ParkingLocation;
-use App\Models\Reservation;
 
 class IndexController extends Controller
 {
     public function index()
     {
+        $user = auth()->user();
+
         $locations = ParkingLocation::where('is_available', true)
             ->limit(6)
             ->get();
 
-        $activeReservation = auth()->user()
+        $activeReservation = $user
             ->reservations()
             ->with(['slot.location', 'vehicle'])
             ->whereIn('status', ['pending', 'active'])
             ->latest()
             ->first();
 
-        $subscription = auth()->user()->subscription()->with('plan')->first();
+        $subscription = $user->subscription()->with('plan')->first();
 
         return view('home', compact('locations', 'activeReservation', 'subscription'));
     }
