@@ -26,13 +26,23 @@ use Illuminate\Support\Facades\Route;
 
 Route::get('/slot/{id}/{token}', function ($id, $token) {
 
-    if ($token !== env('ESP32_SECRET')) {
-        return response()->json(['error' => 'Unauthorized'], 403);
+    $secret = env('ESP32_SECRET');
+    if (!$secret || $token !== $secret) {
+        return response()->json([
+            'error' => 'Unauthorized'
+        ], 403);
     }
 
-    $slot = ParkingSlot::findOrFail($id);
+    $slot = ParkingSlot::find($id);
+    if (!$slot) {
+        return response()->json([
+            'error' => 'Slot not found'
+        ], 404);
+    }
 
     return response()->json([
-        'status' => $slot->status
+        'slot_id' => $slot->id,
+        'status' => $slot->status,
+        'last_updated' => $slot->updated_at->toDateTimeString()
     ]);
 });
