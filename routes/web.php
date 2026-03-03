@@ -106,8 +106,6 @@ Route::middleware('auth')->group(function () {
         ->name('subscription.cancel');
 
     //Proflile
-
-
     Route::get('/profile', [UserProfileController::class, 'show'])->name('profile.show');
     Route::get('/profile', [UserProfileController::class, 'edit'])->name('profile.edit');
     Route::put('/profile', [UserProfileController::class, 'update'])->name('profile.update');
@@ -161,5 +159,14 @@ Route::middleware(['auth', 'admin'])->prefix('admin')->name('admin.')->group(fun
         Route::patch('/subscriptions/{subscription}/approve', [AdminPaymentController::class, 'approve'])->name('subscriptions.approve');
         Route::patch('/subscriptions/{subscription}/reject', [AdminPaymentController::class, 'reject'])->name('subscriptions.reject');
 
+});
+
+Route::get('/api/slot/{id}', function ($id) {
+
+    $slot = \App\Models\ParkingSlot::findOrFail($id);
+
+    return response()->json([
+        'status' => $slot->status
+    ]);
 });
 
