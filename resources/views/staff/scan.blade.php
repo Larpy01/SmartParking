@@ -29,10 +29,19 @@
             {{-- Scanner Section --}}
             <div class="bg-gray-50 rounded-lg p-4">
                 <h3 class="font-medium text-gray-900 mb-4">Scan QR Code</h3>
+
+                {{-- Spinner shown while library loads --}}
+                <div id="qr-loading" class="flex flex-col items-center justify-center py-10 text-gray-400 text-sm gap-2">
+                    <svg class="animate-spin h-6 w-6 text-blue-500" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                        <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+                        <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8v8z"></path>
+                    </svg>
+                    Loading camera…
+                </div>
+
                 <div id="qr-reader" style="width: 100%"></div>
                 <div id="qr-reader-results" class="mt-4 text-center text-sm text-gray-600"></div>
 
-                {{-- Re-scan button shown after a successful scan --}}
                 <button id="rescan-btn"
                         onclick="restartScanner()"
                         class="hidden mt-3 w-full px-4 py-2 bg-gray-600 text-white rounded-md hover:bg-gray-700">
@@ -82,25 +91,49 @@
 @endsection
 
 @push('scripts')
-<script src="https://unpkg.com/html5-qrcode@2.3.8/minified/html5-qrcode.min.js"
-        onload="initQrScanner()"></script>
-
 <script>
 let html5QrcodeScanner = null;
-let isProcessing = false; // prevent duplicate scans firing simultaneously
+let isProcessing = false;
 
-// ─── Initialise scanner ───────────────────────────────────────────────────────
+// ─── Dynamically load the QR library then initialise ─────────────────────────
+(function loadQrLibrary() {
+    // Already on page (e.g. second visit with cache)
+    if (typeof Html5QrcodeScanner !== 'undefined') {
+        initQrScanner();
+        return;
+    }
+
+    const script = document.createElement('script');
+    script.src = 'https://unpkg.com/html5-qrcode@2.3.8/minified/html5-qrcode.min.js';
+
+    script.addEventListener('load', function () {
+        console.log('QR library loaded ✅');
+        initQrScanner();
+    });
+
+    script.addEventListener('error', function () {
+        document.getElementById('qr-loading').innerHTML =
+            '<span class="text-red-500">Failed to load QR library. Check your connection.</span>';
+    });
+
+    document.head.appendChild(script);
+})();
+
+// ─── Init & start ─────────────────────────────────────────────────────────────
 
 function initQrScanner() {
-    console.log('QR library loaded ✅');
+    document.getElementById('qr-loading').classList.add('hidden');
     startScanner();
 }
 
 function startScanner() {
     if (typeof Html5QrcodeScanner === 'undefined') {
-        console.error('Html5QrcodeScanner not loaded');
+        console.error('Html5QrcodeScanner not available');
         return;
     }
+
+    // Clear any leftover DOM from a previous render
+    document.getElementById('qr-reader').innerHTML = '';
 
     html5QrcodeScanner = new Html5QrcodeScanner(
         'qr-reader',
@@ -110,7 +143,7 @@ function startScanner() {
             rememberLastUsedCamera: true,
             showTorchButtonIfSupported: true,
         },
-        false
+        /* verbose= */ false
     );
 
     html5QrcodeScanner.render(onScanSuccess, onScanError);
@@ -121,24 +154,22 @@ function restartScanner() {
     document.getElementById('qr-reader-results').textContent = '';
     isProcessing = false;
 
-    // Clear and re-render the scanner widget
     if (html5QrcodeScanner) {
-        html5QrcodeScanner.clear().then(() => startScanner()).catch(console.error);
+        html5QrcodeScanner.clear()
+            .then(() => startScanner())
+            .catch(err => { console.error('clear() failed:', err); startScanner(); });
     } else {
         startScanner();
     }
 }
 
-// ─── Scan handlers ────────────────────────────────────────────────────────────
+// ─── Scan callbacks ───────────────────────────────────────────────────────────
 
 function onScanSuccess(decodedText) {
-    if (isProcessing) return; // ignore extra rapid-fire scans
+    if (isProcessing) return;
     isProcessing = true;
 
-    // Stop the scanner so it doesn't fire again while we process
-    if (html5QrcodeScanner) {
-        html5QrcodeScanner.pause(true);
-    }
+    try { html5QrcodeScanner.pause(true); } catch (_) {}
 
     document.getElementById('qr-reader-results').textContent = 'Processing…';
     document.getElementById('rescan-btn').classList.remove('hidden');
@@ -147,22 +178,17 @@ function onScanSuccess(decodedText) {
 }
 
 function onScanError(error) {
-    // Suppress the constant "no QR code" stream — only log real errors
-    if (!error?.includes('No MultiFormat Readers')) {
-        console.warn('Scan error:', error);
-    }
+    // Silence per-frame noise from the library
+    if (typeof error === 'string' &&
+        (error.includes('No MultiFormat Readers') || error.includes('NotFoundException'))) return;
+    console.warn('Scan error:', error);
 }
 
 // ─── Manual entry ─────────────────────────────────────────────────────────────
 
 function handleManualEntry() {
     const id = document.getElementById('reservation_id').value.trim();
-    if (!id) {
-        alert('Please enter a Reservation ID.');
-        return;
-    }
-    // Wrap the plain ID in the same JSON shape the backend expects
-    const payload = JSON.stringify({ reservation_id: id, token: '' });
+    if (!id) { alert('Please enter a Reservation ID.'); return; }
     submitToBackend(id);
 }
 
@@ -190,7 +216,7 @@ async function submitToBackend(qrData) {
         console.error('Backend error:', err);
         showModal({ success: false, message: 'Network error. Please try again.' });
         document.getElementById('qr-reader-results').textContent = '❌ Network error.';
-        isProcessing = false; // allow retry
+        isProcessing = false;
     }
 }
 
@@ -221,7 +247,6 @@ function showModal(result) {
                     <span class="inline-block mt-1 px-2 py-0.5 text-xs rounded-full ${badge.cls}">${badge.label}</span>
                 </div>
             </div>
-
             <div class="grid grid-cols-2 gap-3 text-sm">
                 ${row('Reservation #', r.id)}
                 ${row('Status',        r.status)}
@@ -229,10 +254,10 @@ function showModal(result) {
                 ${row('Vehicle',       r.vehicle)}
                 ${row('Slot',          r.slot)}
                 ${row('Location',      r.location)}
-                ${row('Check-in',      r.start_time  ?? '—')}
-                ${row('Check-out',     r.end_time    ?? '—')}
-                ${row('Free hours',    r.free_hours  != null ? r.free_hours  + ' hr(s)' : '—')}
-                ${row('Paid hours',    r.paid_hours  != null ? r.paid_hours  + ' hr(s)' : '—')}
+                ${row('Check-in',      r.start_time   ?? '—')}
+                ${row('Check-out',     r.end_time     ?? '—')}
+                ${row('Free hours',    r.free_hours   != null ? r.free_hours  + ' hr(s)' : '—')}
+                ${row('Paid hours',    r.paid_hours   != null ? r.paid_hours  + ' hr(s)' : '—')}
                 ${row('Total',         r.total_amount != null ? '₱' + r.total_amount : '—')}
                 ${row('Payment',       r.payment_method ? r.payment_method + ' · ' + r.payment_status : '—')}
             </div>`;
@@ -248,9 +273,7 @@ function closeModal() {
     modal.classList.remove('flex');
 }
 
-function printReceipt() {
-    window.print();
-}
+function printReceipt() { window.print(); }
 
 // ─── Helpers ──────────────────────────────────────────────────────────────────
 
@@ -264,22 +287,19 @@ function row(label, value) {
 
 function actionBadge(action) {
     const map = {
-        checked_in:     { label: 'Checked In',      cls: 'bg-blue-100 text-blue-700' },
-        checked_out:    { label: 'Checked Out',      cls: 'bg-green-100 text-green-700' },
-        payment_failed: { label: 'Payment Failed',   cls: 'bg-red-100 text-red-700' },
+        checked_in:     { label: 'Checked In',    cls: 'bg-blue-100 text-blue-700' },
+        checked_out:    { label: 'Checked Out',   cls: 'bg-green-100 text-green-700' },
+        payment_failed: { label: 'Payment Failed',cls: 'bg-red-100 text-red-700' },
     };
     return map[action] ?? { label: action ?? 'Updated', cls: 'bg-gray-100 text-gray-700' };
 }
 
 function escHtml(str) {
     return String(str)
-        .replace(/&/g, '&amp;')
-        .replace(/</g, '&lt;')
-        .replace(/>/g, '&gt;')
-        .replace(/"/g, '&quot;');
+        .replace(/&/g, '&amp;').replace(/</g, '&lt;')
+        .replace(/>/g, '&gt;').replace(/"/g, '&quot;');
 }
 
-// Close modal when clicking the backdrop
 document.getElementById('result-modal').addEventListener('click', function (e) {
     if (e.target === this) closeModal();
 });
