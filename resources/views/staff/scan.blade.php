@@ -80,19 +80,21 @@
 
 @push('scripts')
 
-<script src="https://unpkg.com/html5-qrcode@2.3.8/minified/html5-qrcode.min.js"></script>
+<script src="https://unpkg.com/html5-qrcode@2.3.8/minified/html5-qrcode.min.js"
+        onload="initQrScanner()"></script>
 
 <script>
 let html5QrcodeScanner = null;
 let lastScannedData = null;
 
-document.addEventListener('DOMContentLoaded', function() {
+function initQrScanner() {
+    console.log("QR library loaded ✅");
     startScanner();
-});
+}
 
 function startScanner() {
     if (typeof Html5QrcodeScanner === "undefined") {
-        console.error("Html5QrcodeScanner not loaded!");
+        console.error("Html5QrcodeScanner STILL not loaded!");
         return;
     }
 
@@ -107,11 +109,15 @@ function startScanner() {
         false
     );
 
-    html5QrcodeScanner.render(onScanSuccess);
+    html5QrcodeScanner.render(onScanSuccess, onScanError);
 }
 
-function onScanSuccess(decodedText) {
+function onScanSuccess(decodedText, decodedResult) {
     console.log("Scanned:", decodedText);
+}
+
+function onScanError(error) {
+    console.log("Scan error:", error);
 }
 </script>
 
