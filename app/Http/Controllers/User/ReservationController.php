@@ -113,8 +113,13 @@ class ReservationController extends Controller
             abort(403, 'Unauthorized.');
         }
 
-        $reservation->update(['status' => 'cancelled']);
+        if ($reservation->status !== 'cancelled') {
+            return back()->with('error', 'Only cancelled reservations can be permanently deleted.');
+        }
+
         $reservation->slot->update(['status' => 'available']);
+        $reservation->delete();
+
         return back()->with('success', 'Reservation cancelled.');
     }
 }
