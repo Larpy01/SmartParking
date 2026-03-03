@@ -66,7 +66,7 @@
                     <div>
                         <dt class="text-gray-500">Time</dt>
                         <dd class="font-medium">
-                            {{ $reservation->start_time }} – {{ $reservation->end_time }}
+                            {{ $reservation->start_time }} - {{ $reservation->end_time }}
                         </dd>
                     </div>
                 </dl>
