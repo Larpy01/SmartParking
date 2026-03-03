@@ -23,10 +23,16 @@ use Illuminate\Support\Facades\Route;
         [ApiReservationController::class, 'store']);
 }); */
 
+
 Route::get('/slot/{id}/{token}', function ($id, $token) {
 
+    if ($token !== env('ESP32_SECRET')) {
+        return response()->json(['error' => 'Unauthorized'], 403);
+    }
+
+    $slot = ParkingSlot::findOrFail($id);
+
     return response()->json([
-        'received_token' => $token,
-        'env_token' => env('ESP32_SECRET')
+        'status' => $slot->status
     ]);
 });
