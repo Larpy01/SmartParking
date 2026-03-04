@@ -111,17 +111,14 @@ class ReservationController extends Controller
     public function destroy(Reservation $reservation)
     {
         abort_if($reservation->user_id !== auth()->id(), 403);
-
-        // ── Pending / active → cancel (soft) ─────────────────────────────────
         if (in_array($reservation->status, ['pending', 'active'])) {
             $reservation->update(['status' => 'cancelled']);
             $reservation->slot->update(['status' => 'available']);
-            // Hard-delete so slot record is freed; change to soft-delete if needed
+            $reservation->payments()->delete();
             $reservation->delete();
             return back()->with('success', 'Reservation cancelled.');
         }
 
-        // ── Completed / cancelled → hard delete ───────────────────────────────
         if (in_array($reservation->status, ['completed', 'cancelled'])) {
             $reservation->delete();
             return back()->with('success', 'Reservation deleted.');

@@ -40,8 +40,27 @@
         }
         #mobile-drawer.open { transform: translateX(0); }
 
-        #bottom-nav a.tab-active { color: #16a34a; }
-        #bottom-nav a.tab-active svg { stroke: #16a34a; }
+        .sidebar-link {
+            display: flex;
+            align-items: center;
+            width: 100%;
+            padding: 0.5rem 0.75rem;
+            border-radius: 0.375rem;
+            font-size: 0.875rem;
+            font-weight: 500;
+            color: #374151;
+            text-decoration: none;
+            transition: background-color 0.15s, color 0.15s;
+        }
+        .sidebar-link:hover {
+            background-color: #a7f3d0;
+            color: #111827;
+        }
+
+        #bottom-nav a.tab-active,
+        #bottom-nav button.tab-active { color: #16a34a; }
+        #bottom-nav a.tab-active svg,
+        #bottom-nav button.tab-active svg { stroke: #16a34a; }
     </style>
 </head>
 
@@ -80,7 +99,7 @@
     <div class="h-14 flex items-center gap-2 px-4 border-b border-gray-200 shrink-0">
         <span class="inline-flex h-8 w-8 items-center justify-center rounded-full bg-orange-500 text-white text-lg">P</span>
         <span class="font-semibold text-base">Smart Parking</span>
-        <button id="drawerClose" class="ml-auto text-gray-400 hover:text-gray-700 p-1">
+        <button id="drawerClose" class="ml-auto text-gray-400 hover:text-gray-700 p-1 cursor-pointer">
             <i class="fa-solid fa-xmark text-lg"></i>
         </button>
     </div>
@@ -135,8 +154,10 @@
     </aside>
 
     <main class="flex-1 overflow-y-auto bg-gray-50 pb-20 lg:pb-0">
+
         @if (!Route::is('profile.edit'))
-        <header class="sticky top-0 z-30 h-14 w-full bg-green-200 border-b border-dotted shadow-sm flex items-center justify-between px-4 shrink-0">
+        <header class="sticky top-0 z-30 h-14 w-full bg-green-200 border-b border-dotted shadow-sm
+                        flex items-center justify-between px-4 shrink-0">
             <div class="flex items-center gap-2">
                 <button id="drawerOpen"
                         class="lg:hidden mr-1 text-gray-600 hover:text-gray-900 focus:outline-none p-1 cursor-pointer">

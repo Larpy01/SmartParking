@@ -32,7 +32,7 @@ class PaymentController extends Controller
             'paymongo_reference' => null,
             'amount'             => $request->amount,
             'payment_method'     => $request->payment_method,
-            'payment_status'     => 'processing',
+            'payment_status'     => 'paid',
         ]);
 
         Subscription::updateOrCreate(
