@@ -79,6 +79,20 @@
                 </div>
 
             @elseif (auth()->user()->hasOperatorAccess())
+                <div class="space-y-1 pt-2">
+                    <p class="px-3 mb-2 text-[10px] font-bold text-gray-400 uppercase tracking-wider truncate sidebar-text">Operator</p>
+                    <a href="{{ route('staff.dashboard') }}" class="flex items-center px-3 py-2 rounded-md text-sm font-medium hover:text-orange-600 hover:bg-orange-50 transition sidebar-link">
+                        <span class="sidebar-text truncate">Dashboard</span>
+                    </a>
+                    <a href="{{ route('staff.scan.page') }}" class="flex items-center px-3 py-2 rounded-md text-sm font-medium text-gray-700 hover:text-orange-600 hover:bg-orange-50 transition sidebar-link">
+                        <span class="sidebar-text truncate">Scan</span>
+                    </a>
+                    <a href="{{ route('staff.payments.index') }}" class="flex items-center px-3 py-2 rounded-md text-sm font-medium text-gray-700 hover:bg-emerald-200 hover:text-gray-900 transition-all sidebar-link">
+                        <span class="sidebar-text truncate">Payments</span>
+                    </a>
+                </div>
+
+            @else
                 <div class="space-y-1">
                     <a href="{{ route('home') }}" class="flex items-center px-3 py-2 rounded-md text-sm font-medium text-gray-700 hover:bg-emerald-200 hover:text-gray-900 transition-all sidebar-link">
                         <span class="sidebar-text truncate">Dashboard</span>
@@ -94,20 +108,6 @@
                     </a>
                     <a href="{{ route('subscription.index') }}" class="flex items-center px-3 py-2 rounded-md text-sm font-medium text-gray-700 hover:bg-emerald-200 hover:text-gray-900 transition-all sidebar-link">
                         <span class="sidebar-text truncate">Subscription</span>
-                    </a>
-                </div>
-
-            @else
-                <div class="space-y-1 pt-2">
-                    <p class="px-3 mb-2 text-[10px] font-bold text-gray-400 uppercase tracking-wider truncate sidebar-text">Operator</p>
-                    <a href="{{ route('staff.dashboard') }}" class="flex items-center px-3 py-2 rounded-md text-sm font-medium hover:text-orange-600 hover:bg-orange-50 transition sidebar-link">
-                        <span class="sidebar-text truncate">Dashboard</span>
-                    </a>
-                    <a href="{{ route('staff.scan.page') }}" class="flex items-center px-3 py-2 rounded-md text-sm font-medium text-gray-700 hover:text-orange-600 hover:bg-orange-50 transition sidebar-link">
-                        <span class="sidebar-text truncate">Scan</span>
-                    </a>
-                    <a href="{{ route('staff.payments.index') }}" class="flex items-center px-3 py-2 rounded-md text-sm font-medium text-gray-700 hover:bg-emerald-200 hover:text-gray-900 transition-all sidebar-link">
-                        <span class="sidebar-text truncate">Payments</span>
                     </a>
                 </div>
             @endif
