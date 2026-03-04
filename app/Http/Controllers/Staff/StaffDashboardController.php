@@ -173,7 +173,7 @@ class StaffDashboardController extends Controller
             ]);
         }
 
-        // Online payment via PayMongo
+        /**Online payment via PayMongo
         try {
             $paymentIntent = Paymongo::paymentIntent()->create([
                 'amount'               => $totalAmount,
@@ -206,7 +206,16 @@ class StaffDashboardController extends Controller
                 'message' => "Online payment failed. Please collect ₱{$totalAmount} cash.",
                 'reservation' => $this->formatReservation($reservation),
             ]);
-        }
+        } */ 
+       $payment->update(['payment_status' => 'paid', 'amount' => $totalAmount]);
+            Mail::to($user->email)->send(new ParkingReceipt($reservation->fresh(['payment', 'slot.location', 'vehicle', 'user'])));
+
+            return response()->json([
+                'success' => true,
+                'action'  => 'checked_out',
+                'message' => "Payment of ₱{$totalAmount} via {$payment->payment_method} recorded. Receipt sent to {$user->email}.",
+                'reservation' => $this->formatReservation($reservation),
+            ]);
     }
 
     private function formatReservation(Reservation $reservation): array

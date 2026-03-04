@@ -13,7 +13,6 @@ class PaymentController extends Controller
     public function paymentForm(Request $request, $plan)
     {
         $plan = SubscriptionPlan::findOrFail($plan);
-
         return view('payment.index', compact('plan'));
     }
 
@@ -28,11 +27,10 @@ class PaymentController extends Controller
         $plan = SubscriptionPlan::findOrFail($request->plan_id);
 
         Payment::create([
-            'reservation_id'     => null,
-            'paymongo_reference' => null,
-            'amount'             => $request->amount,
-            'payment_method'     => $request->payment_method,
-            'payment_status'     => 'paid',
+            'reservation_id' => null,
+            'amount'         => $request->amount,
+            'payment_method' => $request->payment_method,
+            'payment_status' => 'paid',
         ]);
 
         Subscription::updateOrCreate(
@@ -42,11 +40,11 @@ class PaymentController extends Controller
                 'price'     => $plan->price,
                 'starts_at' => now(),
                 'ends_at'   => now()->addDays($plan->duration),
-                'status'    => 'pending',
+                'status'    => 'active',
             ]
         );
 
         return redirect()->route('subscription.index')
-            ->with('success', 'Payment submitted. Your subscription will be activated once confirmed.');
+            ->with('success', 'Subscription activated successfully.');
     }
 }
