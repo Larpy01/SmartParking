@@ -15,6 +15,9 @@ class IndexController extends Controller
         ->whereHas('slots', function ($query) {
             $query->where('status', 'available');
         })
+        ->withCount(['slots as available_slots_count' => function ($query) {
+            $query->where('status', 'available');
+        }])
         ->limit(6)
         ->get();
 
