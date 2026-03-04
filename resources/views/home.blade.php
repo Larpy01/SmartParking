@@ -4,7 +4,7 @@
 
 @section('content')
 <div class="grid gap-8 lg:grid-cols-[3fr,2fr] items-start">
-    
+
     <section class="space-y-6 p-6">
 
         {{-- Hero --}}
@@ -153,7 +153,6 @@
         </div>
     </section>
 
-    {{-- ── Right column ─────────────────────────────────────────────────────── --}}
     <section class="space-y-4 p-6">
 
         {{-- Subscription --}}
@@ -226,7 +225,7 @@
 </div>
 @endsection
 
-@push('scripts')
+<script>
 @if($activeReservation)
 <script src="https://cdn.jsdelivr.net/npm/qrcode/build/qrcode.min.js"></script>
 <script>
@@ -263,4 +262,5 @@ document.getElementById('qr-modal').addEventListener('click', e => {
 });
 </script>
 @endif
-@endpush
+
+</script>
