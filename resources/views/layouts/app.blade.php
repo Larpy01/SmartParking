@@ -85,7 +85,7 @@
         </button>
     </div>
     <nav class="flex-1 px-2 py-4 space-y-1 overflow-y-auto">
-        @include('layouts.partials.nav-links')
+        @include('layouts.nav-links')
     </nav>
     <div class="border-t border-gray-100 shrink-0">
         <form method="POST" action="{{ route('logout') }}">
@@ -116,7 +116,7 @@
         </div>
 
         <nav class="flex-1 px-2 py-4 space-y-1 overflow-y-auto">
-            @include('layouts.partials.nav-links')
+            @include('layouts.nav-links')
         </nav>
 
         <div class="border-t border-gray-100 shrink-0">
