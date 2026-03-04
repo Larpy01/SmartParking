@@ -11,9 +11,12 @@ class IndexController extends Controller
     {
         $user = auth()->user();
 
-        $locations = ParkingLocation::where('available', true)
-            ->limit(6)
-            ->get();
+    $locations = ParkingLocation::where('is_available', true)
+        ->whereHas('slots', function ($query) {
+            $query->where('status', 'available');
+        })
+        ->limit(6)
+        ->get();
 
         $activeReservation = $user
             ->reservations()
