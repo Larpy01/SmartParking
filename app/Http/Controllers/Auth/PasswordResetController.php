@@ -19,7 +19,7 @@ class PasswordResetController extends Controller
     public function sendResetLink(Request $request)
     {
         $request->validate([
-            'email' => 'required|email',
+            'email' => 'required|email|santize',
         ]);
 
         $status = Password::sendResetLink($request->only('email'));
@@ -41,7 +41,7 @@ class PasswordResetController extends Controller
     {
         $request->validate([
             'token'    => 'required',
-            'email'    => 'required|email',
+            'email'    => 'required|email|sanitize',
             'password' => [
                 'required',
                 'min:8',

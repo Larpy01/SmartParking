@@ -34,16 +34,17 @@ public function register(Request $request)
 {
     $request->validate([
         'name' => 'required|string|max:255',
-        'email' => 'required|email|unique:users,email',
-        'terms' => 'accepted', // <--- Add this line
+        'email' => 'required|email|unique:users,email|sanitize',
+        'terms' => 'accepted',
         'phone_number' => [
             'required',
-            'digits_between:10,11',
+            'digits_between:10',
             'unique:users,phone_number'
         ],
         'password' => [
             'required',
             'min:8',
+            'max:24',
             'confirmed',
             'regex:/[A-Z]/', 
             'regex:/[0-9]/',
@@ -52,7 +53,7 @@ public function register(Request $request)
         'terms.accepted' => 'You must agree to the Privacy Policy and Terms of Service.', // <--- Custom message
         'password.regex' => 'Password must contain at least one uppercase letter and a number.',
         'password.confirmed' => 'Passwords do not match.',
-        'phone_number.digits_between' => 'Phone number must be 10–11 digits.',
+        'phone_number.digits_between' => 'Phone number must be only 10 digits.',
         'email.unique' => 'This email is already registered.',
         'phone_number.unique' => 'This phone number is already registered.',
     ]);
@@ -101,7 +102,7 @@ public function register(Request $request)
 public function login(Request $request)
 {
     $request->validate([
-        'email' => 'required|email',
+        'email' => 'required|email|sanitize',
         'password' => 'required',
     ]);
 
