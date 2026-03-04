@@ -5,31 +5,29 @@
 @section('content')
 <section class="p-6">
 
-
-
-        @if (session('success'))
-            <div id="success-alert"
-                class="flex items-start justify-between bg-emerald-50 border border-emerald-200 text-emerald-700 rounded-lg p-4 text-sm shadow-sm">
-                <div class="flex items-start gap-2">
-                    <i class="fa-solid fa-circle-check mt-0.5"></i>
-                    <span>{{ session('success') }}</span>
-                </div>
-                <button onclick="closeAlert()" class="text-black text-lg cursor-pointer">
-                    <i class="fa-solid fa-xmark"></i>
-                </button>
+    @if (session('success'))
+        <div id="success-alert"
+            class="flex items-start justify-between bg-emerald-50 border border-emerald-200 text-emerald-700 rounded-lg p-4 text-sm shadow-sm mb-4">
+            <div class="flex items-start gap-2">
+                <i class="fa-solid fa-circle-check mt-0.5"></i>
+                <span>{{ session('success') }}</span>
             </div>
-        @endif
+            <button onclick="closeAlert()" class="text-black text-lg cursor-pointer">
+                <i class="fa-solid fa-xmark"></i>
+            </button>
+        </div>
+    @endif
 
-        @if ($errors->any())
-            <div class="mb-6 rounded-md border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-800">
-                <ul class="list-disc list-inside space-y-1">
-                    @foreach ($errors->all() as $error)
-                        <li>{{ $error }}</li>
-                    @endforeach
-                </ul>
-            </div>
-        @endif
-        
+    @if ($errors->any())
+        <div class="mb-4 rounded-md border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-800">
+            <ul class="list-disc list-inside space-y-1">
+                @foreach ($errors->all() as $error)
+                    <li>{{ $error }}</li>
+                @endforeach
+            </ul>
+        </div>
+    @endif
+
     <div class="bg-white rounded-lg border border-gray-200 p-6">
 
         <div class="flex items-center justify-between mb-4">
@@ -69,7 +67,7 @@
                                     'cancelled' => 'bg-red-50 text-red-700',
                                 ][$status] ?? 'bg-gray-100 text-gray-700';
                             @endphp
-                            <tr class="align-top">
+                            <tr class="align-top" id="reservation-row-{{ $reservation->id }}">
                                 <td class="py-3 pr-4 text-gray-900">{{ $location?->name ?? '—' }}</td>
                                 <td class="py-3 pr-4 text-gray-700">
                                     @if($slot) #{{ $slot->slot_number }} ({{ ucfirst($slot->type) }}) @else — @endif
@@ -102,7 +100,6 @@
                                 <td class="py-3 text-right">
                                     <div class="flex flex-col items-end gap-2">
 
-                                        {{-- QR — pending / active only --}}
                                         @if(in_array($status, ['pending', 'active']))
                                             <button onclick="showModal('qr-modal-{{ $reservation->id }}')"
                                                     class="text-sm text-blue-600 hover:text-blue-700 hover:underline font-medium">
@@ -110,7 +107,6 @@
                                             </button>
                                         @endif
 
-                                        {{-- Receipt — completed only --}}
                                         @if($status === 'completed')
                                             <button onclick="showModal('receipt-modal-{{ $reservation->id }}')"
                                                     class="text-sm text-green-600 hover:text-green-700 hover:underline font-medium">
@@ -118,13 +114,11 @@
                                             </button>
                                         @endif
 
-                                        {{-- Details — always --}}
                                         <a href="{{ route('reservations.show', $reservation) }}"
                                            class="text-sm text-gray-500 hover:text-gray-700 hover:underline font-medium">
                                             Details
                                         </a>
 
-                                        {{-- Cancel — pending / active only --}}
                                         @if(in_array($status, ['pending', 'active']))
                                             <form method="POST"
                                                   action="{{ route('reservations.destroy', $reservation->id) }}"
@@ -138,7 +132,6 @@
                                             </form>
                                         @endif
 
-                                        {{-- Delete — completed / cancelled only --}}
                                         @if(in_array($status, ['completed', 'cancelled']))
                                             <form method="POST"
                                                   action="{{ route('reservations.destroy', $reservation->id) }}"
@@ -163,7 +156,6 @@
     </div>
 </section>
 
-{{-- ── QR modals ────────────────────────────────────────────────────────────── --}}
 @foreach($reservations as $reservation)
     @if(in_array($reservation->status, ['pending', 'active']))
         @php $slot = $reservation->slot; $location = $slot?->location; @endphp
@@ -217,7 +209,6 @@
     @endif
 @endforeach
 
-{{-- ── Receipt modals ───────────────────────────────────────────────────────── --}}
 @foreach($reservations as $reservation)
     @if($reservation->status === 'completed')
         @php
@@ -228,13 +219,11 @@
         <div id="receipt-modal-{{ $reservation->id }}" class="fixed inset-0 z-50" style="display:none">
             <div class="absolute inset-0 bg-black/60 backdrop-blur-sm flex items-center justify-center">
                 <div class="bg-white rounded-2xl shadow-2xl w-full max-w-sm mx-4 overflow-hidden">
-
                     <div class="bg-green-500 px-6 py-5 text-white text-center">
                         <div class="w-11 h-11 rounded-full bg-white/20 flex items-center justify-center mx-auto mb-2 text-2xl">🅿</div>
                         <h2 class="text-base font-bold">Smart Parking</h2>
                         <p class="text-green-100 text-xs mt-0.5">Parking Receipt</p>
                     </div>
-
                     <div class="px-6 py-5 space-y-4 text-sm text-gray-700" id="receipt-body-{{ $reservation->id }}">
                         <div class="space-y-2">
                             <div class="flex justify-between gap-4">
@@ -256,9 +245,7 @@
                                 <span class="font-medium">{{ $reservation->vehicle?->plate_num ?? '—' }}</span>
                             </div>
                         </div>
-
                         <hr class="border-dashed border-gray-200">
-
                         <div class="space-y-2">
                             <div class="flex justify-between gap-4">
                                 <span class="text-gray-400">Check-in</span>
@@ -281,7 +268,6 @@
                             </div>
                             @endif
                         </div>
-
                         @if($payment)
                         <hr class="border-dashed border-gray-200">
                         <div class="space-y-2">
@@ -295,9 +281,7 @@
                             </div>
                         </div>
                         @endif
-
                         <hr class="border-dashed border-gray-200">
-
                         <div class="flex justify-between items-center text-base font-bold">
                             <span>Total</span>
                             <span class="text-green-600">
@@ -308,7 +292,6 @@
                         </div>
                         <p class="text-center text-xs text-gray-400">Thank you for using Smart Parking!</p>
                     </div>
-
                     <div class="px-6 pb-5 flex gap-3">
                         <button onclick="hideModal('receipt-modal-{{ $reservation->id }}')"
                                 class="flex-1 px-4 py-2 border border-gray-300 rounded-lg text-sm text-gray-600 hover:bg-gray-50">
@@ -325,6 +308,7 @@
     @endif
 @endforeach
 
+@push('scripts')
 <script>
 function showModal(id) {
     document.getElementById(id).style.display = 'block';
@@ -335,14 +319,12 @@ function hideModal(id) {
     document.body.style.overflow = '';
 }
 
-// Backdrop click closes modal
 document.querySelectorAll('[id^="qr-modal-"], [id^="receipt-modal-"]').forEach(modal => {
     modal.addEventListener('click', function (e) {
         if (e.target === this) hideModal(this.id);
     });
 });
 
-// Escape key closes any open modal
 document.addEventListener('keydown', function (e) {
     if (e.key !== 'Escape') return;
     document.querySelectorAll('[id^="qr-modal-"], [id^="receipt-modal-"]')
@@ -378,5 +360,38 @@ function printReceiptFor(id) {
     win.print();
     win.close();
 }
+
+@php
+    $activeIds = $reservations->filter(fn($r) => in_array($r->status, ['pending', 'active']))->pluck('id');
+@endphp
+@if($activeIds->isNotEmpty())
+const watchedReservations = @json($activeIds->values());
+
+const statusInterval = setInterval(async () => {
+    try {
+        const checks = watchedReservations.map(id =>
+            fetch(`/reservations/${id}/status`)
+                .then(r => r.json())
+                .then(data => ({ id, status: data.status }))
+        );
+
+        const results = await Promise.all(checks);
+        const changed = results.some(r => {
+            const row = document.getElementById('reservation-row-' + r.id);
+            return row && !row.querySelector(`[class*="bg-yellow"], [class*="bg-blue"]`)
+                ? false
+                : r.status === 'completed' || r.status === 'cancelled';
+        });
+
+        if (changed) {
+            clearInterval(statusInterval);
+            window.location.reload();
+        }
+    } catch (e) {
+        console.error('Polling error', e);
+    }
+}, 5000);
+@endif
 </script>
+@endpush
 @endsection
