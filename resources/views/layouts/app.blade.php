@@ -84,7 +84,7 @@
                     <a href="{{ route('staff.dashboard') }}" class="flex items-center px-3 py-2 rounded-md text-sm font-medium hover:text-orange-600 hover:bg-orange-50 transition sidebar-link">
                         <span class="sidebar-text truncate">Dashboard</span>
                     </a>
-                    <a href="{{ route('home') }}" class="flex items-center px-3 py-2 rounded-md text-sm font-medium text-gray-700 hover:text-orange-600 hover:bg-orange-50 transition sidebar-link">
+                    <a href="{{ route('staff.scan.page') }}" class="flex items-center px-3 py-2 rounded-md text-sm font-medium text-gray-700 hover:text-orange-600 hover:bg-orange-50 transition sidebar-link">
                         <span class="sidebar-text truncate">Scan</span>
                     </a>
                     <a href="{{ route('staff.payments.index') }}" class="flex items-center px-3 py-2 rounded-md text-sm font-medium text-gray-700 hover:bg-emerald-200 hover:text-gray-900 transition-all sidebar-link">
