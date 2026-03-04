@@ -75,7 +75,7 @@ Route::middleware('auth')->group(function () {
         ->name('reservations.create');
 
     Route::get('/reservations', [ReservationController::class, 'show'])
-        ->name('reservations.show')
+        ->name('reservations.show');
 
     Route::post('/reservations', [ReservationController::class, 'store'])
         ->name('reservations.store');
