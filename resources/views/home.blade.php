@@ -154,10 +154,8 @@
         </div>
     </section>
 
-    {{-- ── Right column ─────────────────────────────────────────────────────── --}}
     <section class="space-y-4 p-6">
 
-        {{-- Subscription --}}
         <div class="bg-white rounded-xl shadow-sm border border-gray-200 p-5">
             <h2 class="text-sm font-semibold text-gray-900 mb-3">My Subscription</h2>
 

@@ -122,6 +122,26 @@
 @endsection
 
 <script>
+
+@if($activeReservation && in_array($activeReservation->status, ['pending', 'active']))
+    const reservationId = {{ $activeReservation->id }};
+    const currentStatus = '{{ $activeReservation->status }}';
+
+    const interval = setInterval(async () => {
+        try {
+            const res = await fetch(`/reservations/${reservationId}/status`);
+            const data = await res.json();
+
+            if (data.status !== currentStatus) {
+                clearInterval(interval);
+                window.location.reload();
+            }
+        } catch (e) {
+            console.error('Status check failed', e);
+        }
+    }, 5000);
+@endif
+
 let html5QrcodeScanner = null;
 let isProcessing = false;
 
@@ -149,7 +169,6 @@ let isProcessing = false;
     document.head.appendChild(script);
 })();
 
-// ─── Init & start ─────────────────────────────────────────────────────────────
 
 function initQrScanner() {
     document.getElementById('qr-loading').classList.add('hidden');
@@ -193,8 +212,6 @@ function restartScanner() {
     }
 }
 
-// ─── Scan callbacks ───────────────────────────────────────────────────────────
-
 function onScanSuccess(decodedText) {
     if (isProcessing) return;
     isProcessing = true;
@@ -222,7 +239,6 @@ function handleManualEntry() {
     submitToBackend(id);
 }
 
-// ─── API call ─────────────────────────────────────────────────────────────────
 
 async function submitToBackend(qrData) {
     try {
