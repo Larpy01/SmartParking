@@ -223,7 +223,6 @@
         </div>
     </section>
 </div>
-@endsection
 
 <script>
 @if($activeReservation)
@@ -264,3 +263,5 @@ document.getElementById('qr-modal').addEventListener('click', e => {
 @endif
 
 </script>
+
+@endsection
