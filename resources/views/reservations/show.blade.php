@@ -3,6 +3,7 @@
 @section('title', 'Reservation details')
 
 @section('content')
+<section class="p-6">
     @php
         $slot = $reservation->slot;
         $location = $slot?->location;
@@ -103,6 +104,10 @@
                     </p>
                 @endif
             </div>
+            <a href="{{ route('reservations.index') }}" 
+            class="inline-flex items-center gap-2 text-gray-200 hover:text-red-600 transition-colors">
+                <i class="fa-solid fa-arrow-left"></i>
+            </a>
         </section>
 
         <section class="space-y-4">
@@ -110,13 +115,10 @@
                 <h2 class="text-sm font-semibold text-gray-900 mb-1">
                     Actions
                 </h2>
-                <p class="text-gray-500">
-                    Status changes are handled by the existing routes
-                    (<code>/reservations/{reservation}/start</code> and <code>/reservations/{reservation}/end</code>).
-                </p>
             </div>
         </section>
     </div>
+</section>
 @endsection
 
 <script>
