@@ -156,8 +156,7 @@
     <main class="flex-1 overflow-y-auto bg-gray-50 pb-20 lg:pb-0">
 
         @if (!Route::is('profile.edit'))
-        <header class="sticky top-0 z-30 h-14 w-full bg-green-200 border-b border-dotted shadow-sm
-                        flex items-center justify-between px-4 shrink-0">
+        <header class="sticky top-0 z-30 h-14 w-full bg-green-200 border-b border-dotted shadow-sm flex items-center justify-between px-4 shrink-0">
             <div class="flex items-center gap-2">
                 <button id="drawerOpen"
                         class="lg:hidden mr-1 text-gray-600 hover:text-gray-900 focus:outline-none p-1 cursor-pointer">
@@ -198,6 +197,252 @@
     </div>
 </footer>
 @endif
+
+<script>
+    const sidebar = document.getElementById('sidebar');
+    const toggle  = document.getElementById('sidebarToggle');
+    toggle?.addEventListener('click', () => {
+        sidebar.classList.toggle('w-64');
+        sidebar.classList.toggle('w-16');
+        document.querySelectorAll('.sidebar-text').forEach(el => el.classList.toggle('hidden'));
+    });
+
+    const drawerOpen    = document.getElementById('drawerOpen');
+    const drawerClose   = document.getElementById('drawerClose');
+    const mobileDrawer  = document.getElementById('mobile-drawer');
+    const drawerOverlay = document.getElementById('drawer-overlay');
+
+    function openDrawer() {
+        mobileDrawer?.classList.add('open');
+        drawerOverlay?.classList.add('open');
+        document.body.style.overflow = 'hidden';
+    }
+    function closeDrawer() {
+        mobileDrawer?.classList.remove('open');
+        drawerOverlay?.classList.remove('open');
+        document.body.style.overflow = '';
+    }
+
+    drawerOpen?.addEventListener('click', openDrawer);
+    drawerClose?.addEventListener('click', closeDrawer);
+    drawerOverlay?.addEventListener('click', closeDrawer);
+
+    function togglePassword(inputId, iconId) {
+        const input = document.getElementById(inputId);
+        const icon  = document.getElementById(iconId);
+        if (!input || !icon) return;
+        input.type = input.type === 'password' ? 'text' : 'password';
+        icon.classList.toggle('fa-eye');
+        icon.classList.toggle('fa-eye-slash');
+    }
+
+    function closeAlert() {
+        document.getElementById('success-alert')?.remove();
+    }
+
+    document.addEventListener('DOMContentLoaded', function () {
+        const emailInput       = document.querySelector('input[name="email"]');
+        const rememberCheckbox = document.querySelector('input[name="remember"]');
+        if (!emailInput || !rememberCheckbox) return;
+
+        const savedEmail = localStorage.getItem('remembered_email');
+        if (savedEmail) { emailInput.value = savedEmail; rememberCheckbox.checked = true; }
+
+        document.querySelector('form')?.addEventListener('submit', function () {
+            rememberCheckbox.checked
+                ? localStorage.setItem('remembered_email', emailInput.value)
+                : localStorage.removeItem('remembered_email');
+        });
+    });
+
+    document.addEventListener('DOMContentLoaded', function () {
+        const nameInput     = document.querySelector('input[name="name"]');
+        const phoneInput    = document.querySelector('input[name="phone_number"]');
+        const passwordInput = document.getElementById('password');
+        const confirmInput  = document.getElementById('password_confirmation');
+        if (!nameInput || !passwordInput || !confirmInput) return;
+
+        function showError(input, msg) {
+            removeError(input);
+            const p = document.createElement('p');
+            p.className = 'text-xs text-red-500 mt-1 dynamic-error';
+            p.innerText = msg;
+            input.classList.add('border-red-500');
+            input.parentElement.appendChild(p);
+        }
+        function removeError(input) {
+            input.parentElement.querySelector('.dynamic-error')?.remove();
+            input.classList.remove('border-red-500');
+        }
+
+        nameInput.addEventListener('blur', () => {
+            removeError(nameInput);
+            if (!nameInput.value.trim()) showError(nameInput, 'Full name is required.');
+        });
+
+        const emailInput = document.querySelector('input[name="email"]');
+        emailInput?.addEventListener('blur', () => {
+            removeError(emailInput);
+            if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(emailInput.value))
+                showError(emailInput, 'Please enter a valid email address.');
+        });
+
+        phoneInput?.addEventListener('blur', () => {
+            removeError(phoneInput);
+            if (phoneInput.value.length < 10 || phoneInput.value.length > 11)
+                showError(phoneInput, 'Phone number must be 10–11 digits.');
+            else if (!/^\d+$/.test(phoneInput.value))
+                showError(phoneInput, 'Phone number must contain only digits.');
+        });
+
+        passwordInput.addEventListener('blur', () => {
+            removeError(passwordInput);
+            if (passwordInput.value.length < 8)     { showError(passwordInput, 'Password must be at least 8 characters.'); return; }
+            if (!/[A-Z]/.test(passwordInput.value)) { showError(passwordInput, 'Must contain at least one uppercase letter.'); return; }
+            if (!/[0-9]/.test(passwordInput.value))   showError(passwordInput, 'Must contain at least one number.');
+        });
+
+        confirmInput.addEventListener('blur', () => {
+            removeError(confirmInput);
+            if (confirmInput.value !== passwordInput.value)
+                showError(confirmInput, 'Passwords do not match.');
+        });
+    });
+
+    document.addEventListener('DOMContentLoaded', function () {
+        const startTime = document.getElementById('start_time');
+        const endTime   = document.getElementById('end_time');
+        if (!startTime || !endTime) return;
+        startTime.min = new Date().toISOString().slice(0, 16);
+        startTime.addEventListener('change', function () {
+            endTime.min = this.value;
+            if (endTime.value && endTime.value <= this.value) endTime.value = '';
+        });
+    });
+</script>
+
+<script>
+    const sidebar = document.getElementById('sidebar');
+    const toggle  = document.getElementById('sidebarToggle');
+    toggle?.addEventListener('click', () => {
+        sidebar.classList.toggle('w-64');
+        sidebar.classList.toggle('w-16');
+        document.querySelectorAll('.sidebar-text').forEach(el => el.classList.toggle('hidden'));
+    });
+
+    const drawerOpen    = document.getElementById('drawerOpen');
+    const drawerClose   = document.getElementById('drawerClose');
+    const mobileDrawer  = document.getElementById('mobile-drawer');
+    const drawerOverlay = document.getElementById('drawer-overlay');
+
+    function openDrawer() {
+        mobileDrawer?.classList.add('open');
+        drawerOverlay?.classList.add('open');
+        document.body.style.overflow = 'hidden';
+    }
+    function closeDrawer() {
+        mobileDrawer?.classList.remove('open');
+        drawerOverlay?.classList.remove('open');
+        document.body.style.overflow = '';
+    }
+
+    drawerOpen?.addEventListener('click', openDrawer);
+    drawerClose?.addEventListener('click', closeDrawer);
+    drawerOverlay?.addEventListener('click', closeDrawer);
+
+    function togglePassword(inputId, iconId) {
+        const input = document.getElementById(inputId);
+        const icon  = document.getElementById(iconId);
+        if (!input || !icon) return;
+        input.type = input.type === 'password' ? 'text' : 'password';
+        icon.classList.toggle('fa-eye');
+        icon.classList.toggle('fa-eye-slash');
+    }
+
+    function closeAlert() {
+        document.getElementById('success-alert')?.remove();
+    }
+
+    document.addEventListener('DOMContentLoaded', function () {
+        const emailInput       = document.querySelector('input[name="email"]');
+        const rememberCheckbox = document.querySelector('input[name="remember"]');
+        if (!emailInput || !rememberCheckbox) return;
+
+        const savedEmail = localStorage.getItem('remembered_email');
+        if (savedEmail) { emailInput.value = savedEmail; rememberCheckbox.checked = true; }
+
+        document.querySelector('form')?.addEventListener('submit', function () {
+            rememberCheckbox.checked
+                ? localStorage.setItem('remembered_email', emailInput.value)
+                : localStorage.removeItem('remembered_email');
+        });
+    });
+
+    document.addEventListener('DOMContentLoaded', function () {
+        const nameInput     = document.querySelector('input[name="name"]');
+        const phoneInput    = document.querySelector('input[name="phone_number"]');
+        const passwordInput = document.getElementById('password');
+        const confirmInput  = document.getElementById('password_confirmation');
+        if (!nameInput || !passwordInput || !confirmInput) return;
+
+        function showError(input, msg) {
+            removeError(input);
+            const p = document.createElement('p');
+            p.className = 'text-xs text-red-500 mt-1 dynamic-error';
+            p.innerText = msg;
+            input.classList.add('border-red-500');
+            input.parentElement.appendChild(p);
+        }
+        function removeError(input) {
+            input.parentElement.querySelector('.dynamic-error')?.remove();
+            input.classList.remove('border-red-500');
+        }
+
+        nameInput.addEventListener('blur', () => {
+            removeError(nameInput);
+            if (!nameInput.value.trim()) showError(nameInput, 'Full name is required.');
+        });
+
+        const emailInput = document.querySelector('input[name="email"]');
+        emailInput?.addEventListener('blur', () => {
+            removeError(emailInput);
+            if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(emailInput.value))
+                showError(emailInput, 'Please enter a valid email address.');
+        });
+
+        phoneInput?.addEventListener('blur', () => {
+            removeError(phoneInput);
+            if (phoneInput.value.length < 10 || phoneInput.value.length > 11)
+                showError(phoneInput, 'Phone number must be 10–11 digits.');
+            else if (!/^\d+$/.test(phoneInput.value))
+                showError(phoneInput, 'Phone number must contain only digits.');
+        });
+
+        passwordInput.addEventListener('blur', () => {
+            removeError(passwordInput);
+            if (passwordInput.value.length < 8)     { showError(passwordInput, 'Password must be at least 8 characters.'); return; }
+            if (!/[A-Z]/.test(passwordInput.value)) { showError(passwordInput, 'Must contain at least one uppercase letter.'); return; }
+            if (!/[0-9]/.test(passwordInput.value))   showError(passwordInput, 'Must contain at least one number.');
+        });
+
+        confirmInput.addEventListener('blur', () => {
+            removeError(confirmInput);
+            if (confirmInput.value !== passwordInput.value)
+                showError(confirmInput, 'Passwords do not match.');
+        });
+    });
+
+    document.addEventListener('DOMContentLoaded', function () {
+        const startTime = document.getElementById('start_time');
+        const endTime   = document.getElementById('end_time');
+        if (!startTime || !endTime) return;
+        startTime.min = new Date().toISOString().slice(0, 16);
+        startTime.addEventListener('change', function () {
+            endTime.min = this.value;
+            if (endTime.value && endTime.value <= this.value) endTime.value = '';
+        });
+    });
+</script>
 
 @stack('scripts')
 @include('layouts.accessibility')
