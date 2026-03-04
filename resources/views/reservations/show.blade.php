@@ -121,9 +121,8 @@
 </section>
 @endsection
 
-<script>
-
 @if($activeReservation && in_array($activeReservation->status, ['pending', 'active']))
+<script>
     const reservationId = {{ $activeReservation->id }};
     const currentStatus = '{{ $activeReservation->status }}';
 
@@ -139,9 +138,10 @@
         } catch (e) {
             console.error('Status check failed', e);
         }
-    }, 5000);
-@endif
+    }, 5000);   
+</script>
 
+<script>
 let html5QrcodeScanner = null;
 let isProcessing = false;
 

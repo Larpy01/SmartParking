@@ -228,6 +228,27 @@
 @push('scripts')
 @if($activeReservation)
 <script src="https://cdn.jsdelivr.net/npm/qrcode/build/qrcode.min.js"></script>
+@if($activeReservation && in_array($activeReservation->status, ['pending', 'active']))
+<script>
+    const reservationId = {{ $activeReservation->id }};
+    const currentStatus = '{{ $activeReservation->status }}';
+
+    const interval = setInterval(async () => {
+        try {
+            const res = await fetch(`/reservations/${reservationId}/status`);
+            const data = await res.json();
+
+            if (data.status !== currentStatus) {
+                clearInterval(interval);
+                window.location.reload();
+            }
+        } catch (e) {
+            console.error('Status check failed', e);
+        }
+    }, 5000);   
+</script>
+
+@endif
 <script>
 document.addEventListener('DOMContentLoaded', function () {
     const reservationId = '{{ $activeReservation->id }}';
