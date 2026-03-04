@@ -11,7 +11,7 @@ class IndexController extends Controller
     {
         $user = auth()->user();
 
-        $locations = ParkingLocation::where('is_available', true)
+        $locations = ParkingLocation::where('available', true)
             ->limit(6)
             ->get();
 
