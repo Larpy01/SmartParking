@@ -41,10 +41,11 @@ class PasswordResetController extends Controller
     {
         $request->validate([
             'token'    => 'required',
-            'email'    => 'required|email|sanitize',
+            'email'    => 'required|email',
             'password' => [
                 'required',
                 'min:8',
+                'max:24',
                 'confirmed',
                 'regex:/[A-Z]/',
                 'regex:/[0-9]/',

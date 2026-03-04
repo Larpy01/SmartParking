@@ -34,7 +34,7 @@ public function register(Request $request)
 {
     $request->validate([
         'name' => 'required|string|max:255',
-        'email' => 'required|email|unique:users,email|sanitize',
+        'email' => 'required|email|unique:users,email',
         'terms' => 'accepted',
         'phone_number' => [
             'required',
@@ -102,7 +102,7 @@ public function register(Request $request)
 public function login(Request $request)
 {
     $request->validate([
-        'email' => 'required|email|sanitize',
+        'email' => 'required|email',
         'password' => 'required',
     ]);
 
