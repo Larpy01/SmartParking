@@ -4,6 +4,31 @@
 
 @section('content')
 <div class="p-6">
+
+
+        @if (session('success'))
+            <div id="success-alert"
+                class="flex items-start justify-between bg-emerald-50 border border-emerald-200 text-emerald-700 rounded-lg p-4 text-sm shadow-sm">
+                <div class="flex items-start gap-2">
+                    <i class="fa-solid fa-circle-check mt-0.5"></i>
+                    <span>{{ session('success') }}</span>
+                </div>
+                <button onclick="closeAlert()" class="text-black text-lg cursor-pointer">
+                    <i class="fa-solid fa-xmark"></i>
+                </button>
+            </div>
+        @endif
+
+        @if ($errors->any())
+            <div class="mb-6 rounded-md border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-800">
+                <ul class="list-disc list-inside space-y-1">
+                    @foreach ($errors->all() as $error)
+                        <li>{{ $error }}</li>
+                    @endforeach
+                </ul>
+            </div>
+        @endif
+
     <div class="mb-6">
         <h1 class="text-2xl font-bold text-gray-900">Reserve a Spot</h1>
         <p class="text-sm text-gray-500">at {{ $parkingLocation->name }}</p>
@@ -82,20 +107,39 @@
 
                 {{-- Payment Method --}}
                 <div>
-                    <label class="block text-sm font-medium text-gray-700 mb-2">Payment Method</label>
+                    <label class="block text-sm font-medium text-gray-700 mb-2">
+                        Payment Method
+                    </label>
+
                     <div class="grid grid-cols-2 sm:grid-cols-4 gap-3">
                         @foreach (['gcash' => 'GCash', 'maya' => 'Maya', 'card' => 'Card', 'cash' => 'Cash'] as $value => $label)
-                            <label class="relative flex items-center justify-center gap-2 border-2 rounded-lg p-3 cursor-pointer transition
+                            <label 
+                                class="payment-label relative flex items-center justify-center gap-2 border-2 rounded-lg p-3 cursor-pointer transition
                                 {{ old('payment_method') === $value ? 'border-blue-500 bg-blue-50' : 'border-gray-200 hover:border-blue-300' }}">
-                                <input type="radio" name="payment_method" value="{{ $value }}"
-                                    class="absolute opacity-0 w-0 h-0"
+
+                                <input 
+                                    type="radio" 
+                                    name="payment_method" 
+                                    value="{{ $value }}"
+                                    class="hidden"
                                     {{ old('payment_method') === $value ? 'checked' : '' }}
-                                    onchange="document.querySelectorAll('.payment-option').forEach(el => el.classList.remove('border-blue-500','bg-blue-50'));
-                                            this.closest('label').classList.add('border-blue-500','bg-blue-50')">
-                                <span class="text-sm font-medium text-gray-700 payment-option">{{ $label }}</span>
+                                    onchange="
+                                        document.querySelectorAll('.payment-label').forEach(el => {
+                                            el.classList.remove('border-blue-500','bg-blue-50');
+                                            el.classList.add('border-gray-200');
+                                        });
+                                        this.closest('.payment-label').classList.remove('border-gray-200');
+                                        this.closest('.payment-label').classList.add('border-blue-500','bg-blue-50');
+                                    "
+                                >
+
+                                <span class="text-sm font-medium text-gray-700">
+                                    {{ $label }}
+                                </span>
                             </label>
                         @endforeach
                     </div>
+
                     @error('payment_method')
                         <p class="text-xs text-red-500 mt-1">{{ $message }}</p>
                     @enderror

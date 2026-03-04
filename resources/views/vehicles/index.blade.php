@@ -5,21 +5,28 @@
 @section('content')
 <section class="space-y-6 p-6">
 
-    @if (session('success'))
-        <div class="bg-green-50 border border-green-200 text-green-700 rounded-lg p-4 text-sm">
-            {{ session('success') }}
-        </div>
-    @endif
+        @if (session('success'))
+            <div id="success-alert"
+                class="flex items-start justify-between bg-emerald-50 border border-emerald-200 text-emerald-700 rounded-lg p-4 text-sm shadow-sm">
+                <div class="flex items-start gap-2">
+                    <i class="fa-solid fa-circle-check mt-0.5"></i>
+                    <span>{{ session('success') }}</span>
+                </div>
+                <button onclick="closeAlert()" class="text-black text-lg cursor-pointer">
+                    <i class="fa-solid fa-xmark"></i>
+                </button>
+            </div>
+        @endif
 
-    @if ($errors->any())
-        <div class="bg-red-50 border border-red-200 text-red-700 rounded-lg p-4 text-sm">
-            <ul class="list-disc list-inside space-y-1">
-                @foreach ($errors->all() as $error)
-                    <li>{{ $error }}</li>
-                @endforeach
-            </ul>
-        </div>
-    @endif
+        @if ($errors->any())
+            <div class="mb-6 rounded-md border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-800">
+                <ul class="list-disc list-inside space-y-1">
+                    @foreach ($errors->all() as $error)
+                        <li>{{ $error }}</li>
+                    @endforeach
+                </ul>
+            </div>
+        @endif
 
     <div class="grid gap-6 lg:grid-cols-[3fr,2fr] items-start">
 

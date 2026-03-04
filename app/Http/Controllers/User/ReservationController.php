@@ -112,6 +112,7 @@ class ReservationController extends Controller
     {
         abort_if($reservation->user_id !== auth()->id(), 403);
 
+        // ── Pending / active → cancel (soft) ─────────────────────────────────
         if (in_array($reservation->status, ['pending', 'active'])) {
             $reservation->update(['status' => 'cancelled']);
             $reservation->slot->update(['status' => 'available']);
@@ -120,6 +121,7 @@ class ReservationController extends Controller
             return back()->with('success', 'Reservation cancelled.');
         }
 
+        // ── Completed / cancelled → hard delete ───────────────────────────────
         if (in_array($reservation->status, ['completed', 'cancelled'])) {
             $reservation->delete();
             return back()->with('success', 'Reservation deleted.');
