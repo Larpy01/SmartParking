@@ -392,6 +392,30 @@ const statusInterval = setInterval(async () => {
     }
 }, 5000);
 @endif
+
+async function submitToBackend(qrData) {
+    try {
+        const response = await fetch('{{ route("staff.scan") }}', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]')?.getAttribute('content'),
+                'Accept':       'application/json',
+            },
+            body: JSON.stringify({ qr_data: qrData }),
+        });
+
+        const result = await response.json();
+        statusEl.textContent = result.success ? '✅ ' + result.message : '❌ ' + result.message;
+        showModal(result);
+
+    } catch (err) {
+        console.error(err);
+        statusEl.textContent = '❌ Network error. Please try again.';
+        showModal({ success: false, message: 'Network error. Please try again.' });
+        isProcessing = false;
+    }
+}
 </script>
 @endpush
 @endsection
