@@ -118,7 +118,7 @@
                                            class="text-sm text-gray-500 hover:text-gray-700 hover:underline font-medium">
                                             Details
                                         </a>
-
+                                        <!--
                                         @if(in_array($status, ['pending', 'active']))
                                             <form method="POST"
                                                   action="{{ route('reservations.destroy', $reservation->id) }}"
@@ -144,7 +144,7 @@
                                                 </button>
                                             </form>
                                         @endif
-
+                                        -->
                                     </div>
                                 </td>
                             </tr>
