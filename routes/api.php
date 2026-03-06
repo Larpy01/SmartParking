@@ -11,7 +11,7 @@ use Illuminate\Http\Request;
 use App\Models\ParkingSlot;
 use Illuminate\Support\Facades\Route;
 
-/**Route::middleware('auth:sanctum')->group(function () {
+Route::middleware('auth:sanctum')->group(function () {
 
     Route::get('/parking-locations',
         [ApiParkingLocationController::class, 'index']);
@@ -21,7 +21,7 @@ use Illuminate\Support\Facades\Route;
 
     Route::post('/reservations',
         [ApiReservationController::class, 'store']);
-}); */
+});
 
 
 Route::get('/slot/{id}/{token}', function ($id, $token) {
