@@ -370,7 +370,7 @@ const watchedReservations = @json($activeIds->values());
 const statusInterval = setInterval(async () => {
     try {
         const checks = watchedReservations.map(id =>
-            fetch(`/reservations/${id}/status`)
+            fetch(`api/reservations/${id}/status`)
                 .then(r => r.json())
                 .then(data => ({ id, status: data.status }))
         );
