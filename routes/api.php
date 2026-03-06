@@ -11,22 +11,6 @@ use Illuminate\Http\Request;
 use App\Models\ParkingSlot;
 use Illuminate\Support\Facades\Route;
 
-Route::get('/reservations/{id}/status', function ($id) {
-
-    $reservation = App\Models\Reservation::find($id);
-
-    if (!$reservation) {
-        return response()->json([
-            'error' => 'Reservation not found'
-        ], 404);
-    }
-
-    return response()->json([
-        'id' => $reservation->id,
-        'status' => $reservation->status
-    ]);
-});
-
 
 Route::get('/slot/{id}/{token}', function ($id, $token) {
 

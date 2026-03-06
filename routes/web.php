@@ -13,6 +13,7 @@ use App\Http\Controllers\Admin\AdminParkingSlotController;
 use App\Http\Controllers\Admin\AdminReservationController;
 use App\Http\Controllers\Admin\AdminUserController;
 use App\Http\Controllers\Auth\RegisteredUserController;
+use App\Models\Reservation;
 use App\Http\Controllers\Auth\AuthenticatedSessionController;
 use App\Http\Controllers\UserProfileController;
 use App\Http\Controllers\Staff\StaffDashboardController;
@@ -89,6 +90,14 @@ Route::middleware('auth')->group(function () {
     Route::delete('/reservations/{reservation}', [ReservationController::class, 'destroy'])
         ->name('reservations.destroy');
         
+    Route::get('/reservations/{id}/status', function ($id) {
+    $reservation = Reservation::find($id);
+    if (!$reservation) {
+        return response()->json(['error' => 'Reservation not found'], 404);
+    }
+        return response()->json(['status' => $reservation->status]);
+    });
+
     Route::get('payment/{plan}', [PaymentController::class, 'paymentForm'])
         ->name('payment.form');
 
