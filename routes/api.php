@@ -11,16 +11,20 @@ use Illuminate\Http\Request;
 use App\Models\ParkingSlot;
 use Illuminate\Support\Facades\Route;
 
-Route::middleware('auth:sanctum')->group(function () {
+Route::get('/reservations/{id}/status', function ($id) {
 
-    Route::get('/parking-locations',
-        [ApiParkingLocationController::class, 'index']);
+    $reservation = App\Models\Reservation::find($id);
 
-    Route::get('/parking-locations/{id}/slots',
-        [ApiParkingSlotController::class, 'index']);
+    if (!$reservation) {
+        return response()->json([
+            'error' => 'Reservation not found'
+        ], 404);
+    }
 
-    Route::post('/reservations',
-        [ApiReservationController::class, 'store']);
+    return response()->json([
+        'id' => $reservation->id,
+        'status' => $reservation->status
+    ]);
 });
 
 
