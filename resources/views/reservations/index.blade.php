@@ -392,7 +392,7 @@ const statusInterval = setInterval(async () => {
     } catch (e) {
         console.error('Polling error', e);
     }
-}, 5000);
+}, 1000);
 @endif
 
 async function submitToBackend(qrData) {
