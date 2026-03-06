@@ -47,7 +47,7 @@ Route::middleware('auth')->group(function () {
     
 
 
-    Route::get('/logout', [RegisteredUserController::class, 'logout'])->name('logout');
+    // Route::get('/logout', [RegisteredUserController::class, 'logout'])->name('logout.user');
 
     Route::post('/logout', [RegisteredUserController::class, 'logout'])
     ->middleware('auth')
