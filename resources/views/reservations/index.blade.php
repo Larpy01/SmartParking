@@ -369,24 +369,26 @@ const watchedReservations = @json($activeIds->values());
 
 const statusInterval = setInterval(async () => {
     try {
+
         const checks = watchedReservations.map(id =>
-            fetch(`api//slot/{id}/{token}`)
+            fetch(`/api/reservations/${id}/status`)
                 .then(r => r.json())
                 .then(data => ({ id, status: data.status }))
         );
 
         const results = await Promise.all(checks);
+
         const changed = results.some(r => {
             const row = document.getElementById('reservation-row-' + r.id);
-            return row && !row.querySelector(`[class*="bg-yellow"], [class*="bg-blue"]`)
-                ? false
-                : r.status === 'completed' || r.status === 'cancelled';
+
+            return r.status === 'completed' || r.status === 'cancelled';
         });
 
         if (changed) {
             clearInterval(statusInterval);
             window.location.reload();
         }
+
     } catch (e) {
         console.error('Polling error', e);
     }
